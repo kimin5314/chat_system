@@ -6,7 +6,7 @@ echo "Building and deploying production environment..."
 
 # Set production environment variables
 export SPRING_PROFILES_ACTIVE=prod
-export FRONTEND_URL="http://kimin.pink:5173"
+export FRONTEND_URL="http://kimin.pink:80"
 export DB_USERNAME="kimin"
 export DB_PASSWORD="kmn@68A1BH"
 export UPLOAD_DIR="/home/kimin/chat_system/uploads"
