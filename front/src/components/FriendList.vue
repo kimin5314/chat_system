@@ -130,7 +130,7 @@ const contextMenuVisible = ref(false)
 const getAvatarUrl = (avatarPath) => {
   if (!avatarPath) return '/default-avatar.png'
   if (avatarPath.startsWith('http')) return avatarPath
-  const baseUrl = import.meta.env.VITE_API_BASE || 'http://localhost:9090'
+  const baseUrl = import.meta.env.VITE_API_BASE
   return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
 }
 const contextMenuPosition = reactive({ x: 0, y: 0 })

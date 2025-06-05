@@ -11,12 +11,20 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    private ChatWebSocketHandler chatWebSocketHandler;    @Override
+    private ChatWebSocketHandler chatWebSocketHandler;
+    
+    @Autowired
+    private AppProperties appProperties;
+
+    @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        // Use configured frontend URL for WebSocket CORS
+        String frontendUrl = appProperties.getFrontendUrl();
+        
         registry.addHandler(new FriendRequestHandler(), "/ws/friend")
-                .setAllowedOriginPatterns("*"); // 允许所有域名进行请求
+                .setAllowedOrigins(frontendUrl);
         
         registry.addHandler(chatWebSocketHandler, "/chat")
-                .setAllowedOriginPatterns("*"); // 允许所有域名进行请求
+                .setAllowedOrigins(frontendUrl);
     }
 }

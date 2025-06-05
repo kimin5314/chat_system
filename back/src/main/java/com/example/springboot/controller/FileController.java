@@ -15,11 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@CrossOrigin(origins = "http://localhost:5173")
-@CrossOrigin(
-        origins = "http://localhost:5173",       // 允许的前端域名
-        exposedHeaders = HttpHeaders.CONTENT_DISPOSITION  // 明确暴露 CONTENT_DISPOSITION
-)
 @RestController
 @RequestMapping("/file")
 public class FileController {
