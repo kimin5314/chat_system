@@ -16,8 +16,8 @@ cd ../back
 export FRONTEND_URL="http://localhost:5173"
 export DB_USERNAME="kimin"
 export DB_PASSWORD="kmn@68A1BH"
-export UPLOAD_DIR="/home/kimin/myproject/uploads"
-export AVATAR_DIR="/home/kimin/myproject/uploads/avatar"
+export UPLOAD_DIR="/home/kimin/chat_system/uploads"
+export AVATAR_DIR="/home/kimin/chat_system/uploads/avatar"
 
 ./mvnw spring-boot:run &
 BACKEND_PID=$!
