@@ -1,7 +1,7 @@
 <template>
   <div v-if="visible" class="modal-backdrop">
     <div class="modal">
-      <h3 class="modal-title">共享文件 {{ fileId }}</h3>
+      <h3 class="modal-title">共享文件 {{ fileId || '未选择' }}</h3>
       <div class="modal-body">
         <label class="form-group">
           <span class="form-label">目标用户 ID：</span>
@@ -33,7 +33,7 @@
 import { defineEmits, defineProps, ref, watch } from 'vue'
 
 const props = defineProps({
-  fileId: { type: Number, required: true },
+  fileId: { type: Number, default: null },
   visible: { type: Boolean, required: true }
 })
 const emits = defineEmits(['cancel', 'confirm'])
@@ -53,6 +53,10 @@ function onCancel() {
   emits('cancel')
 }
 function onConfirm() {
+  if (!props.fileId) {
+    alert('请先选择要分享的文件')
+    return
+  }
   emits('confirm', {
     targetUserId: targetUserId.value,
     permission: permission.value
