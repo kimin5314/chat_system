@@ -18,8 +18,11 @@
       @click="toggleSidebar"
     ></div>
 
-    <!-- Sidebar with conversations -->
-    <div class="chat-sidebar" :class="{ 'sidebar-hidden': isMobile && !sidebarVisible }">
+    <!-- Sidebar on desktop, bottom drawer on mobile -->
+    <div class="chat-sidebar" :class="{
+      'sidebar-hidden': isMobile && !sidebarVisible,
+      'sidebar-visible': isMobile && sidebarVisible
+    }">
       <div class="sidebar-header">
         <h3>聊天</h3>
         <div class="connection-status">
@@ -442,15 +445,35 @@ defineExpose({
 }
 
 .sidebar-hidden {
-  transform: translateX(-100%);
+  transform: translateY(100%);
+}
+
+.sidebar-visible {
+  transform: translateY(0);
 }
 
 .chat-sidebar {
-  width: 320px;
+  width: 240px;  /* narrower desktop sidebar */
   background: white;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
+}
+
+/* Mobile: slide sidebar up from bottom */
+@media (max-width: 1024px) {
+  .chat-sidebar {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    width: 100%; /* full-width bottom drawer */
+  }
+  .conversations-list {
+    padding: 10px;
+  }
 }
 
 .sidebar-header {
@@ -782,19 +805,25 @@ defineExpose({
   
   .chat-sidebar {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
-    width: 85%;
-    max-width: 320px;
-    height: 100vh;
-    z-index: 999;
+    width: 100%;
+    height: 50%;
+    max-height: 300px;
+    border-right: none;
+    border-top: 1px solid #e0e0e0;
+    transform: translateY(100%);
     transition: transform 0.3s ease;
-    background: white;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 999;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
   }
   
-  .sidebar-hidden {
-    transform: translateX(-100%);
+  .chat-sidebar.sidebar-visible {
+    transform: translateY(0);
+  }
+  
+  .chat-sidebar.sidebar-hidden {
+    transform: translateY(100%);
   }
   
   .conversations-list {

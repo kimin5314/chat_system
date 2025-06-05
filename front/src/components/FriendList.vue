@@ -580,121 +580,60 @@ onMounted(() => {
   gap: 12px;
 }
 
-/* Mobile responsive styles */
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .friend-list-container {
-    margin: 10px;
-    border-radius: 8px;
+    padding: 0 10px;
   }
-  
   .search-and-add {
-    padding: 15px;
     flex-direction: column;
-    gap: 15px;
+    align-items: stretch;
   }
-  
   .search-input {
-    order: 1;
-  }
-  
-  .friend-list {
-    max-height: calc(100vh - 200px);
-    padding: 5px;
-  }
-  
-  .friend-item {
-    padding: 15px 10px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .friend-info {
     width: 100%;
   }
-  
+  .search-and-add > * {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .search-results,
+  .friend-list {
+    max-height: 300px;
+  }
+  .friend-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 5px;
+  }
   .friend-avatar {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     margin-right: 15px;
   }
-  
   .friend-username {
     font-size: 18px !important;
   }
-  
   .friend-actions {
     width: 100%;
-    margin-left: 0;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .search-result-content {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  
-  .user-info {
-    width: 100%;
-  }
-  
-  .request-item {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  
-  .request-actions {
-    width: 100%;
-    justify-content: flex-end;
+    margin-top: 10px;
+    text-align: right;
   }
 }
 
 @media (max-width: 480px) {
   .friend-list-container {
-    margin: 5px;
+    padding: 0 5px;
   }
-  
-  .search-and-add {
-    padding: 10px;
-  }
-  
-  .friend-list {
-    max-height: calc(100vh - 180px);
-  }
-  
-  .friend-item {
-    padding: 12px 8px;
-  }
-  
-  .friend-avatar {
-    width: 40px;
-    height: 40px;
-    margin-right: 12px;
-  }
-  
-  .friend-username {
-    font-size: 16px !important;
-  }
-  
-  .status-indicator {
-    width: 12px;
-    height: 12px;
-  }
-  
-  .search-result-content {
-    padding: 12px;
-  }
-  
-  .custom-context-menu {
-    min-width: 140px;
+  .search-input {
     font-size: 14px;
   }
-  
-  .menu-item {
-    padding: 10px 14px;
+  .friend-avatar {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+  }
+  .friend-username {
+    font-size: 16px !important;
   }
 }
 </style>

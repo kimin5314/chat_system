@@ -8,9 +8,23 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@/store/chat'
 import Cookies from 'js-cookie'
 import { ElMessage } from 'element-plus'
+import { Menu } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const chatStore = useChatStore()
+
+// Mobile responsiveness
+const isMobile = ref(false)
+const sidebarVisible = ref(false)
+
+function toggleSidebar() {
+  sidebarVisible.value = !sidebarVisible.value
+}
+
+function checkMobile() {
+  isMobile.value = window.innerWidth < 768
+  if (!isMobile.value) sidebarVisible.value = false
+}
 
 // 页面跳转
 const logout = () => {
@@ -79,17 +93,24 @@ onMounted(async () => {
       console.error('Failed to initialize chat system:', error)
     }
   }
+
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
 })
 
 onUnmounted(() => {
   // Cleanup when app layout unmounts
   chatStore.cleanup()
+  window.removeEventListener('resize', checkMobile)
 })
 </script>
 
 <template>
-  <el-container>    <!-- 侧边栏 -->
-    <el-aside class="app-sidebar" style="width: 240px; min-height: 100vh; background-color: #001529;">
+  <el-container>
+    <!-- 侧边栏 -->
+    <!-- Mobile backdrop -->
+    <div v-if="isMobile && sidebarVisible" class="mobile-backdrop" @click="toggleSidebar"></div>
+    <el-aside :class="['app-sidebar', { 'sidebar-hidden': isMobile && !sidebarVisible }]" style="width: 240px; min-height: 100vh; background-color: #001529;">
       <div style="height: 80px; color: azure; display: flex; align-items: center; justify-content: center">
         <img src="@/assets/css/img_2.png" style="width:50px;height: 50px; border-radius: 50%; object-fit: cover;">
         <span style="padding: 15px; font-size: 30px">聊天系统</span>
@@ -120,8 +141,13 @@ onUnmounted(() => {
     </el-aside>
 
     <!-- 主体区域 -->
-    <el-container>      <!-- 顶部导航 -->
+    <el-container>
+      <!-- 顶部导航 -->
       <el-header class="app-header">
+        <!-- Mobile menu button in header -->
+        <el-button v-if="isMobile" @click="toggleSidebar" class="mobile-menu-button" type="text">
+          <el-icon><Menu /></el-icon>
+        </el-button>
         <el-breadcrumb :separator-icon="ArrowRight" style="margin-left: 20px;font-size: 20px;">
           <template v-for="(item, index) in route.matched" :key="index">
             <el-breadcrumb-item v-if="index === route.matched.length - 1 && item.meta.parentTitle">
@@ -160,6 +186,16 @@ onUnmounted(() => {
       </el-main>
     </el-container>
   </el-container>
+
+  <!-- Chat Component -->
+  <div class="chat-wrapper">
+    <div class="messages" ref="messagesContainer">
+      <!-- ...your message list here... -->
+    </div>
+    <div class="input-bar">
+      <!-- your <el-input> + send button -->
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -210,75 +246,46 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Mobile responsive styles */
+/* Mobile responsiveness */
 @media (max-width: 768px) {
-  .el-container {
-    flex-direction: column;
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85%;
+    max-width: 240px;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
   }
   
-  .app-sidebar {
-    width: 100% !important;
-    height: auto !important;
-    min-height: auto !important;
-    order: 2;
+  .app-sidebar.sidebar-hidden {
+    transform: translateX(-100%);
+  }
+  
+  .mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
   }
   
   .app-header {
-    height: 60px !important;
-    order: 1;
-    padding: 0 15px !important;
-  }
-  
-  .app-main {
-    order: 3;
-    padding: 10px !important;
-  }
-  
-  :deep(.el-aside) {
-    box-shadow: 0 -1px 6px rgba(0, 21, 41, 0.35);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
   }
   
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
     font-size: 16px;
+    padding-left: 20px !important;
     height: 50px;
-    line-height: 40px;
-    padding-left: 60px !important;
-  }
-  
-  :deep(.el-menu--inline .el-menu-item) {
-    font-size: 14px;
-    padding-left: 65px !important;
-    height: 40px;
-    line-height: 40px;
-  }
-  
-  .app-sidebar .el-menu {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .app-sidebar .el-menu-item,
-  .app-sidebar .el-sub-menu {
-    flex-shrink: 0;
-    min-width: 120px;
-  }
-  
-  /* Header logo area */
-  .app-sidebar > div:first-child {
-    height: 60px;
-    font-size: 20px;
-  }
-  
-  .app-sidebar > div:first-child img {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .app-sidebar > div:first-child span {
-    padding: 10px;
-    font-size: 20px;
+    line-height: 50px;
   }
 }
 
@@ -337,5 +344,38 @@ onUnmounted(() => {
     margin-left: 10px !important;
     font-size: 14px !important;
   }
+  
+  .chat-wrapper {
+    height: 100vh;           /* fill entire screen */
+  }
+  .input-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+}
+
+.chat-wrapper {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: calc(100vh - 80px);
+}
+
+.messages {
+  flex: 1;                /* grow to fill */
+  overflow-y: auto;       /* scroll when too long */
+  padding: 12px;
+}
+
+.input-bar {
+  flex: 0 0 auto;         /* fixed height */
+  padding: 8px;
+  border-top: 1px solid #eaeaea;
+  background: #fff;
+}
+
+.input-bar .el-input__inner {
+  min-height: 48px;
+  font-size: 16px;
 }
 </style>
