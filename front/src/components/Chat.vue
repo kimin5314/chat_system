@@ -1,7 +1,25 @@
 <template>
   <div class="chat-container">
+    <!-- Mobile sidebar toggle -->
+    <div class="mobile-header" v-if="isMobile">
+      <el-button @click="toggleSidebar" class="sidebar-toggle">
+        <el-icon><Menu /></el-icon>
+        聊天列表
+      </el-button>
+      <div v-if="currentConversation" class="mobile-current-chat">
+        {{ currentConversation.friendUsername }}
+      </div>
+    </div>
+
+    <!-- Mobile backdrop -->
+    <div 
+      v-if="isMobile && sidebarVisible" 
+      class="mobile-backdrop"
+      @click="toggleSidebar"
+    ></div>
+
     <!-- Sidebar with conversations -->
-    <div class="chat-sidebar">
+    <div class="chat-sidebar" :class="{ 'sidebar-hidden': isMobile && !sidebarVisible }">
       <div class="sidebar-header">
         <h3>聊天</h3>
         <div class="connection-status">
@@ -120,6 +138,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { useFriendStore } from '@/store/friend'
 import { ElMessage } from 'element-plus'
+import { Menu } from '@element-plus/icons-vue'
 import Cookies from 'js-cookie'
 
 const route = useRoute()
@@ -132,6 +151,10 @@ const newMessage = ref('')
 const messagesContainer = ref(null)
 const typingTimer = ref(null)
 const isSending = ref(false)
+
+// Mobile responsiveness
+const isMobile = ref(false)
+const sidebarVisible = ref(false)
 
 // Computed properties
 const conversations = computed(() => chatStore.conversations)
@@ -253,6 +276,11 @@ async function selectConversation(conversation) {
     // Reset unread count
     conversation.unreadCount = 0
     
+    // Close sidebar on mobile after selection
+    if (isMobile.value) {
+      sidebarVisible.value = false
+    }
+    
     // Scroll to bottom
     await nextTick()
     scrollToBottom()
@@ -352,6 +380,28 @@ function formatTime(time) {
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
+// Mobile responsiveness functions
+function toggleSidebar() {
+  sidebarVisible.value = !sidebarVisible.value
+}
+
+function checkMobile() {
+  isMobile.value = window.innerWidth < 768
+  if (!isMobile.value) {
+    sidebarVisible.value = false // Reset sidebar visibility on desktop
+  }
+}
+
+// Initialize mobile detection
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
+
 // Expose methods for external use (e.g., from FriendList component)
 defineExpose({
   startConversationWithFriend
@@ -361,8 +411,38 @@ defineExpose({
 <style scoped>
 .chat-container {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 80px); /* Subtract header height */
   background: #f5f5f5;
+  position: relative;
+}
+
+.mobile-header {
+  display: none;
+}
+
+.mobile-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-current-chat {
+  font-weight: 600;
+  color: #333;
+}
+
+.sidebar-hidden {
+  transform: translateX(-100%);
 }
 
 .chat-sidebar {
@@ -569,6 +649,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-height: 0; /* Important for flex overflow */
 }
 
 .message-wrapper {
@@ -640,6 +721,7 @@ defineExpose({
   padding: 20px;
   border-top: 1px solid #e0e0e0;
   background: white;
+  flex-shrink: 0; /* Prevent input area from shrinking */
 }
 
 .input-container {
@@ -681,19 +763,192 @@ defineExpose({
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 60px); /* Smaller header on mobile */
+    flex-direction: column;
+  }
+  
+  .mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
   .chat-sidebar {
-    width: 100%;
-    position: absolute;
-    z-index: 10;
-    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .sidebar-hidden {
+    transform: translateX(-100%);
+  }
+  
+  .conversations-list {
+    height: calc(100% - 80px);
+    overflow-y: auto;
   }
   
   .chat-main {
-    width: 100%;
+    flex: 1;
+    min-height: 0;
   }
   
   .message-content {
     max-width: 85%;
+  }
+  
+  .sidebar-header {
+    padding: 15px 20px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 18px;
+  }
+  
+  .conversation-item {
+    padding: 12px 20px;
+  }
+  
+  .avatar img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .username {
+    font-size: 14px;
+  }
+  
+  .last-message {
+    font-size: 12px;
+  }
+  
+  .chat-header {
+    padding: 12px 15px;
+  }
+  
+  .friend-info img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .friend-info h4 {
+    font-size: 16px;
+  }
+  
+  .messages-container {
+    padding: 15px;
+    gap: 12px;
+  }
+  
+  .message-input-area {
+    padding: 15px;
+  }
+  
+  .input-container {
+    gap: 8px;
+  }
+  
+  .send-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-container {
+    height: calc(100vh - 50px);
+  }
+  
+  .chat-sidebar {
+    height: 150px;
+  }
+  
+  .sidebar-header {
+    padding: 10px 15px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 16px;
+  }
+  
+  .conversation-item {
+    padding: 10px 15px;
+  }
+  
+  .avatar img {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .username {
+    font-size: 13px;
+  }
+  
+  .last-message {
+    font-size: 11px;
+  }
+  
+  .chat-header {
+    padding: 10px 15px;
+  }
+  
+  .friend-info img {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .friend-info h4 {
+    font-size: 14px;
+  }
+  
+  .messages-container {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .message-content {
+    max-width: 90%;
+    padding: 8px 12px;
+    border-radius: 16px;
+  }
+  
+  .message-text {
+    font-size: 14px;
+  }
+  
+  .message-time {
+    font-size: 10px;
+  }
+  
+  .message-input-area {
+    padding: 10px;
+  }
+  
+  .input-container {
+    gap: 6px;
+  }
+  
+  .input-container :deep(.el-textarea .el-textarea__inner) {
+    font-size: 14px;
+  }
+  
+  .send-button {
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }
 </style>

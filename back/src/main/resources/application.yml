@@ -37,4 +37,3 @@ cors:
 # Application configuration
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
-

@@ -54,22 +54,21 @@
     </div>
 
     <!-- 好友列表 -->
-    <div class="friend-list">
-      <div
+    <div class="friend-list">        <div
           v-for="friend in filteredFriends"
           :key="friend.id"
           class="friend-item"
           @contextmenu.prevent="showContextMenu($event, friend.id)"
-      >
+        >
         <div class="friend-info">
           <img :src="getAvatarUrl(friend.avatar)" :alt="friend.username" class="friend-avatar" />
           <span class="friend-username">{{ friend.username }}</span>
           <div class="status-indicator" :class="{ online: friend.online }"></div>
         </div>
-        <div class="friend-chat" @click="openChat(friend.id)">
-          <div class="chat-preview">
-            <span>{{ friend.lastMessage || '暂无消息' }}</span>
-          </div>
+        <div class="friend-actions">
+          <el-button type="primary" size="small" @click="openChat(friend.id)">
+            聊天
+          </el-button>
         </div>
       </div>
     </div>
@@ -404,7 +403,8 @@ onMounted(() => {
 
 <style scoped>
 .friend-list-container {
-  width: 1100px;
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
   background-color: #fff;
   border: 1px solid #e0e0e0;
@@ -433,9 +433,9 @@ onMounted(() => {
 .friend-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
-  cursor: pointer;
 }
 
 .friend-item:hover {
@@ -445,7 +445,7 @@ onMounted(() => {
 .friend-info {
   display: flex;
   align-items: center;
-  margin-right: 10px;
+  flex: 1;
 }
 
 .friend-avatar {
@@ -474,13 +474,8 @@ onMounted(() => {
   background-color: #4caf50;
 }
 
-.friend-chat {
-  flex: 1;
-}
-
-.chat-preview {
-  font-size: 14px;
-  color: #666;
+.friend-actions {
+  margin-left: 10px;
 }
 
 .custom-context-menu {
@@ -583,5 +578,123 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .friend-list-container {
+    margin: 10px;
+    border-radius: 8px;
+  }
+  
+  .search-and-add {
+    padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .search-input {
+    order: 1;
+  }
+  
+  .friend-list {
+    max-height: calc(100vh - 200px);
+    padding: 5px;
+  }
+  
+  .friend-item {
+    padding: 15px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .friend-info {
+    width: 100%;
+  }
+  
+  .friend-avatar {
+    width: 45px;
+    height: 45px;
+    margin-right: 15px;
+  }
+  
+  .friend-username {
+    font-size: 18px !important;
+  }
+  
+  .friend-actions {
+    width: 100%;
+    margin-left: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .search-result-content {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .user-info {
+    width: 100%;
+  }
+  
+  .request-item {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .request-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .friend-list-container {
+    margin: 5px;
+  }
+  
+  .search-and-add {
+    padding: 10px;
+  }
+  
+  .friend-list {
+    max-height: calc(100vh - 180px);
+  }
+  
+  .friend-item {
+    padding: 12px 8px;
+  }
+  
+  .friend-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+  
+  .friend-username {
+    font-size: 16px !important;
+  }
+  
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .search-result-content {
+    padding: 12px;
+  }
+  
+  .custom-context-menu {
+    min-width: 140px;
+    font-size: 14px;
+  }
+  
+  .menu-item {
+    padding: 10px 14px;
+  }
 }
 </style>
