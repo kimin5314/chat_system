@@ -129,54 +129,5 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("找不到用户，ID=" + userId));
     }
-
-    /**
-     * 更新用户的公钥
-     */
-    @Transactional
-    public boolean updatePublicKey(Integer userId, String publicKey) {
-        try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("找不到用户，ID=" + userId));
-            
-            user.setPublicKey(publicKey);
-            userRepository.save(user);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * 获取指定用户的公钥
-     */
-    public String getPublicKey(Integer userId) {
-        try {
-            User user = userRepository.findById(userId).orElse(null);
-            return user != null ? user.getPublicKey() : null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * 批量获取用户的公钥
-     */
-    public java.util.Map<Integer, String> getPublicKeys(List<Integer> userIds) {
-        java.util.Map<Integer, String> publicKeys = new java.util.HashMap<>();
-        
-        for (Integer userId : userIds) {
-            try {
-                User user = userRepository.findById(userId).orElse(null);
-                if (user != null && user.getPublicKey() != null) {
-                    publicKeys.put(userId, user.getPublicKey());
-                }
-            } catch (Exception e) {
-                // 忽略单个用户的错误，继续处理其他用户
-            }
-        }
-        
-        return publicKeys;
-    }
 }
 

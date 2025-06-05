@@ -20,9 +20,6 @@ public class User {
     private String displayName;    @Column(name = "avatar_url", columnDefinition = "TEXT")
     private String avatarUrl;
 
-    @Column(name = "public_key", columnDefinition = "TEXT")
-    private String publicKey;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -68,14 +65,6 @@ public class User {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
     }
 
     public LocalDateTime getCreatedAt() {
