@@ -95,70 +95,106 @@ const register = async () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f4f4;
+  background: var(--bg-light);
+  padding: var(--spacing-lg);
 }
 
 .register-box {
-  width: 350px;
-  padding: 40px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
+  padding: var(--spacing-4xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-medium);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+  animation: slideUp 0.5s ease;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 30px;
-  color: #333;
+  margin-bottom: var(--spacing-3xl);
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
 }
 
 .input-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
 }
 
 .input-group input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .register-button {
   width: 100%;
-  padding: 12px;
-  background-color: #007bff;
-  color: #fff;
+  padding: var(--spacing-md);
+  background: var(--primary-gradient);
+  color: white;
   border: none;
-  border-radius: 3px;
+  border-radius: var(--border-radius-small);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.register-button:hover {
-  background-color: #218838;
+.register-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .register-button:disabled {
-  background-color: #a0a0a0;
+  background: var(--text-muted);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .back-link {
   display: block;
   text-align: center;
-  margin-top: 15px;
-  color: #007bff;
+  margin-top: var(--spacing-lg);
+  color: var(--primary-color);
   text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-small);
 }
 
 .back-link:hover {
-  color: #0056b3;
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+  .register-box {
+    padding: var(--spacing-2xl);
+  }
 }
 </style>

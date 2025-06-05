@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import com.example.springboot.utils.JwtUtil;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FriendRequestHandler extends TextWebSocketHandler {
     // Changed: Use Map<userId, Set<WebSocketSession>> to support multiple sessions per user
     private static final Map<Integer, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();

@@ -14,17 +14,14 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private ChatWebSocketHandler chatWebSocketHandler;
     
     @Autowired
-    private AppProperties appProperties;
+    private FriendRequestHandler friendRequestHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // Use configured frontend URL for WebSocket CORS
-        String frontendUrl = appProperties.getFrontendUrl();
-        
-        registry.addHandler(new FriendRequestHandler(), "/ws/friend")
-                .setAllowedOrigins(frontendUrl);
-        
+        // Allow all origins for WebSocket handshakes
+        registry.addHandler(friendRequestHandler, "/ws/friend")
+                .setAllowedOriginPatterns("*");
         registry.addHandler(chatWebSocketHandler, "/chat")
-                .setAllowedOrigins(frontendUrl);
+                .setAllowedOriginPatterns("*");
     }
 }

@@ -184,66 +184,78 @@ const uploadAvatar = async () => {
 
 <style scoped>
 .profile-container {
-  max-width: 700px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #fafafa;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  font-family: Arial, sans-serif;
-  height: 300px;
+  max-width: 800px;
+  margin: var(--spacing-4xl) auto;
+  padding: var(--spacing-4xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-medium);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+  min-height: 400px;
+  animation: slideUp 0.5s ease;
 }
 
 .profile-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-between;  align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .profile-header h1 {
-  font-size: 24px;
+  font-size: var(--font-size-2xl);
   margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .button-group {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-md);
 }
 
 .button-group button {
-  padding: 8px 14px;
-  background-color: #007bff;
-  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--primary-gradient);
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-small);
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .button-group button:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .logout-button {
-  background-color: #dc3545;
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
 }
 
 .logout-button:hover {
-  background-color: #c82333;
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4) !important;
 }
 
 .profile-content {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: var(--spacing-3xl);
   align-items: flex-start;
 }
 
 .profile-avatar {
   flex-shrink: 0;
   text-align: center;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
 }
 
 .profile-avatar img {
@@ -251,11 +263,18 @@ const uploadAvatar = async () => {
   height: 160px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ddd;
+  border: 4px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+  transition: all var(--transition-medium);
+}
+
+.profile-avatar img:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-medium);
 }
 
 .avatar-upload {
-  margin-top: 10px;
+  margin-top: var(--spacing-lg);
   text-align: center;
 }
 
@@ -275,21 +294,24 @@ const uploadAvatar = async () => {
 .file-input-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #3b82f6;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--secondary-color);
   color: white;
-  border-radius: 6px;
+  border-radius: var(--border-radius-small);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  transition: all var(--transition-fast);
   border: none;
   user-select: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .file-input-label:hover {
   background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .file-input-label:active {
@@ -297,43 +319,88 @@ const uploadAvatar = async () => {
 }
 
 .upload-icon {
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .profile-info {
   flex: 1;
-  min-width: 240px;
-  margin-top: 10px;
-  margin-left: 30px;
+  min-width: 300px;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
 }
 
 .info-item {
   display: flex;
-  font-size: 20px;
+  align-items: center;
+  font-size: var(--font-size-md);
   width: 100%;
+  margin-bottom: var(--spacing-lg);
 }
 
 .info-item label {
-  width: 100px;
-  padding: 8px;
-  font-weight: bold;
-  color: #333;
+  width: 120px;
+  padding: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
 }
 
 .info-item input {
   flex: 1;
-  font-size: 20px;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
+  font-size: var(--font-size-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);}
+
+.info-item input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .info-item input.readonly {
   border: none;
-  background-color: transparent;
-  color: #333;
-  padding: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  padding: var(--spacing-sm);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    margin: var(--spacing-lg);
+    padding: var(--spacing-2xl);
+    min-height: auto;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    text-align: center;
+  }
+  
+  .profile-content {
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+  
+  .profile-info {
+    min-width: auto;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .info-item label {
+    width: auto;
+    margin-bottom: var(--spacing-xs);
+  }
 }
 </style>

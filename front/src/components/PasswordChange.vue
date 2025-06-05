@@ -86,52 +86,81 @@ const handleChangePassword = async () => {
 
 <style scoped>
 .change-password-container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 450px;
+  margin: var(--spacing-4xl) auto;
+  padding: var(--spacing-3xl);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-light);
+  animation: slideUp 0.5s ease;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: var(--spacing-2xl);
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-lg);
   display: flex;
   flex-direction: column;
 }
 
 label {
-  margin-bottom: 6px;
-  font-weight: bold;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
 }
 
 input[type="password"] {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--border-color);
+  font-size: var(--font-size-base);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .button-group {
   text-align: center;
+  margin-top: var(--spacing-xl);
 }
 
 button {
-  padding: 10px 24px;
-  background-color: #007bff;
-  color: #fff;
+  padding: var(--spacing-md) var(--spacing-2xl);
+  background: var(--primary-gradient);
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius-small);
   cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-button:hover {
-  background-color: #0056b3;
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+button:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .error {

@@ -109,22 +109,21 @@ onUnmounted(() => {
   <el-container>
     <!-- 侧边栏 -->
     <!-- Mobile backdrop -->
-    <div v-if="isMobile && sidebarVisible" class="mobile-backdrop" @click="toggleSidebar"></div>
-    <el-aside :class="['app-sidebar', { 'sidebar-hidden': isMobile && !sidebarVisible }]" style="width: 240px; min-height: 100vh; background-color: #001529;">
-      <div style="height: 80px; color: azure; display: flex; align-items: center; justify-content: center">
-        <img src="@/assets/css/img_2.png" style="width:50px;height: 50px; border-radius: 50%; object-fit: cover;">
-        <span style="padding: 15px; font-size: 30px">聊天系统</span>
+    <div v-if="isMobile && sidebarVisible" class="mobile-backdrop" @click="toggleSidebar"></div>    <el-aside :class="['app-sidebar', { 'sidebar-hidden': isMobile && !sidebarVisible }]" class="sidebar">
+      <div class="sidebar-header">
+        <img src="@/assets/css/img_2.png" class="sidebar-logo">
+        <span class="sidebar-title">聊天系统</span>
       </div>
 
       <!-- 菜单栏 -->
       <el-menu
           router
-          background-color="#001529"
-          text-color="rgba(255,255,255,0.65)"
-          active-text-color="#fff"
-          style="border: none;"
+          :background-color="'transparent'"
+          text-color="var(--text-sidebar)"
+          active-text-color="var(--text-primary)"
+          class="sidebar-menu"
           :default-active="route.path"
-      >        <el-menu-item index="/app/home">系统首页</el-menu-item>
+      ><el-menu-item index="/app/home">系统首页</el-menu-item>
 
         <el-menu-item index="/app/friendList">好友列表</el-menu-item>
         <el-menu-item index="/app/chat">聊天</el-menu-item>
@@ -141,14 +140,13 @@ onUnmounted(() => {
     </el-aside>
 
     <!-- 主体区域 -->
-    <el-container>
-      <!-- 顶部导航 -->
+    <el-container>      <!-- 顶部导航 -->
       <el-header class="app-header">
         <!-- Mobile menu button in header -->
         <el-button v-if="isMobile" @click="toggleSidebar" class="mobile-menu-button" type="text">
           <el-icon><Menu /></el-icon>
         </el-button>
-        <el-breadcrumb :separator-icon="ArrowRight" style="margin-left: 20px;font-size: 20px;">
+        <el-breadcrumb :separator-icon="ArrowRight" class="header-breadcrumb">
           <template v-for="(item, index) in route.matched" :key="index">
             <el-breadcrumb-item v-if="index === route.matched.length - 1 && item.meta.parentTitle">
               {{ item.meta.parentTitle }}
@@ -157,10 +155,8 @@ onUnmounted(() => {
               {{ item.meta.title }}
             </el-breadcrumb-item>
           </template>
-        </el-breadcrumb>
-
-        <!-- 用户下拉 -->
-        <div style="flex: 1; display: flex; align-items: center; justify-content: flex-end">
+        </el-breadcrumb>        <!-- 用户下拉 -->
+        <div class="header-user-section">
           <el-dropdown placement="bottom">
             <template #dropdown>
               <el-dropdown-menu>
@@ -169,12 +165,12 @@ onUnmounted(() => {
                 <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
-            <div style="display: flex; align-items: center; cursor: pointer">
+            <div class="user-info">
               <img
                   :src="user.avatarUrl || '/default-avatar.png'"
-                  style="width:50px;height:50px; border-radius: 50%; object-fit: cover;"
+                  class="user-avatar"
               >
-              <span style="font-size: 20px; padding-left: 10px;">
+              <span class="user-name">
                 {{ user.username || '未登录' }}
               </span>
             </div>
@@ -186,67 +182,161 @@ onUnmounted(() => {
       </el-main>
     </el-container>
   </el-container>
-
-  <!-- Chat Component -->
-  <div class="chat-wrapper">
-    <div class="messages" ref="messagesContainer">
-      <!-- ...your message list here... -->
-    </div>
-    <div class="input-bar">
-      <!-- your <el-input> + send button -->
-    </div>
-  </div>
 </template>
 
 <style scoped>
-:deep(.el-aside) {
-  box-shadow: 1px 0 6px rgba(0, 21, 41, 0.35);
+/* Sidebar Styles */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  box-shadow: var(--shadow-medium);
 }
-:deep(.el-header) {
-  box-shadow: 1px 0 6px rgba(0, 21, 41, 0.35);
+
+.sidebar-header {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sidebar-header-bg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--shadow-light);
+}
+
+.sidebar-title {
+  padding: var(--spacing-md);
+  font-size: var(--font-size-2xl);
+  color: var(--text-sidebar-title);
+  font-weight: 600;
+}
+
+.sidebar-menu {
+  border: none;
+  background: transparent;
+}
+
+/* Header Styles */
+.app-header {
   height: 80px !important;
   display: flex;
   align-items: center;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-light);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 var(--spacing-lg);
 }
-/* 菜单样式 */
-:deep(.el-menu-item),
-:deep(.el-sub-menu__title) {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
-  height: 60px;
-  line-height: 48px;
-  padding-left: 80px !important;
+
+.mobile-menu-button {
+  margin-right: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.header-breadcrumb {
+  margin-left: var(--spacing-lg);
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+}
+
+.header-user-section {
+  flex: 1;
   display: flex;
   align-items: center;
-  transition: background-color 0.1s, color 0.1s;
+  justify-content: flex-end;
 }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-small);
+  transition: all var(--transition-fast);
+}
+
+.user-info:hover {
+  background: var(--bg-hover);
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--shadow-light);
+}
+
+.user-name {
+  font-size: var(--font-size-lg);
+  padding-left: var(--spacing-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.app-main {
+  background: var(--bg-light);
+  min-height: calc(100vh - 80px);
+}
+
+/* Element Plus Overrides */
+:deep(.el-aside) {
+  box-shadow: var(--shadow-medium);
+}
+
+:deep(.el-header) {
+  box-shadow: var(--shadow-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Menu Item Styles */
+:deep(.el-menu-item),
+:deep(.el-sub-menu__title) {
+  font-size: var(--font-size-lg);
+  color: var(--text-sidebar) !important;
+  height: 60px;
+  line-height: 48px;
+  padding-left: 60px !important;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition-fast);
+  margin: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-small);
+}
+
 :deep(.el-menu--inline .el-menu-item) {
-  font-size: 16px;
-  padding-left: 85px !important;
+  font-size: var(--font-size-base);
+  padding-left: 80px !important;
   height: 44px;
   line-height: 44px;
-  background-color: #001d3a;
+  background-color: var(--sidebar-submenu-bg);
+  margin: 2px var(--spacing-sm);
 }
+
 :deep(.el-menu-item:hover),
 :deep(.el-sub-menu__title:hover),
 :deep(.el-menu--inline .el-menu-item:hover) {
-  background-color: #003a8c !important;
-  color: #fff !important;
-}
-:deep(.el-menu-item.is-active) {
-  background-color: #1890ff !important;
-  color: #fff !important;
-  border-radius: 6px;
-  margin: 4px 4px;
-}
-.el-aside {
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-}
-:deep(.el-sub-menu__icon-arrow) {
-  color: rgba(255, 255, 255, 0.6);
+  background-color: var(--sidebar-hover) !important;
+  color: var(--text-sidebar-hover) !important;
 }
 
-/* Mobile responsiveness */
+:deep(.el-menu-item.is-active) {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-light);
+}
+
+:deep(.el-sub-menu__icon-arrow) {
+  color: var(--text-sidebar-secondary);
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
   .app-sidebar {
     position: fixed;
@@ -257,7 +347,7 @@ onUnmounted(() => {
     height: 100vh;
     z-index: 999;
     transform: translateX(0);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-medium);
   }
   
   .app-sidebar.sidebar-hidden {
@@ -272,18 +362,20 @@ onUnmounted(() => {
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     z-index: 998;
+    backdrop-filter: blur(2px);
   }
   
   .app-header {
     position: sticky;
     top: 0;
     z-index: 1000;
+    padding: 0 var(--spacing-md);
   }
   
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
-    font-size: 16px;
-    padding-left: 20px !important;
+    font-size: var(--font-size-base);
+    padding-left: var(--spacing-lg) !important;
     height: 50px;
     line-height: 50px;
   }
@@ -291,91 +383,49 @@ onUnmounted(() => {
 
 @media (max-width: 480px) {
   .app-header {
-    height: 50px !important;
-    padding: 0 10px !important;
+    height: 60px !important;
+    padding: 0 var(--spacing-sm) !important;
   }
   
   .app-main {
-    padding: 5px !important;
+    padding: var(--spacing-xs) !important;
+  }
+  
+  .sidebar-header {
+    height: 60px;
+  }
+  
+  .sidebar-logo {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .sidebar-title {
+    font-size: var(--font-size-lg);
+    padding: var(--spacing-sm);
   }
   
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     height: 45px;
     line-height: 36px;
-    padding-left: 40px !important;
+    padding-left: var(--spacing-lg) !important;
   }
   
-  .app-sidebar .el-menu-item,
-  .app-sidebar .el-sub-menu {
-    min-width: 100px;
-  }
-  
-  /* Header logo area */
-  .app-sidebar > div:first-child {
-    height: 50px;
-    font-size: 16px;
-  }
-  
-  .app-sidebar > div:first-child img {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .app-sidebar > div:first-child span {
-    padding: 8px;
-    font-size: 16px;
-  }
-  
-  /* User dropdown */
-  .app-header .el-dropdown img {
+  .user-avatar {
     width: 35px !important;
     height: 35px !important;
   }
   
-  .app-header .el-dropdown span {
-    font-size: 16px !important;
-    padding-left: 8px !important;
+  .user-name {
+    font-size: var(--font-size-base) !important;
+    padding-left: var(--spacing-xs) !important;
   }
   
-  /* Breadcrumb */
-  .app-header .el-breadcrumb {
-    margin-left: 10px !important;
-    font-size: 14px !important;
+  .header-breadcrumb {
+    margin-left: var(--spacing-sm) !important;
+    font-size: var(--font-size-sm) !important;
   }
-  
-  .chat-wrapper {
-    height: 100vh;           /* fill entire screen */
-  }
-  .input-bar {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-  }
-}
-
-.chat-wrapper {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  height: calc(100vh - 80px);
-}
-
-.messages {
-  flex: 1;                /* grow to fill */
-  overflow-y: auto;       /* scroll when too long */
-  padding: 12px;
-}
-
-.input-bar {
-  flex: 0 0 auto;         /* fixed height */
-  padding: 8px;
-  border-top: 1px solid #eaeaea;
-  background: #fff;
-}
-
-.input-bar .el-input__inner {
-  min-height: 48px;
-  font-size: 16px;
 }
 </style>

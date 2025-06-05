@@ -99,8 +99,7 @@
       loading.value = false
     }
   })
-  
-  onUnmounted(() => {
+    onUnmounted(() => {
     if (previewUrl.value) {
       URL.revokeObjectURL(previewUrl.value)
     }
@@ -108,95 +107,158 @@
   </script>
   
   <style scoped>
-  .preview-page { padding: 16px; }
-  .btn-back { background: transparent; border: none; color: #3b82f6; cursor: pointer; }
-  .btn-back:hover { text-decoration: underline; }
-  .loading, .error { text-align: center; margin-top: 40px; color: #555; }
-  .preview-container { display: flex; justify-content: center; align-items: center; margin-top: 24px; }
-  /* 图片 */
-  .preview-content img { max-width: 90vw; max-height: 80vh; border-radius: 4px; }
-  /* PDF iframe */
-  .iframe-preview { width: 90vw; height: 80vh; }
-  /* 文本 */
-  .text-preview {
-    background: #f7f7f7; padding: 12px; border-radius: 4px;
-    max-width: 90vw; max-height: 80vh; overflow-y: auto;
-    white-space: pre-wrap; word-break: break-all;
-  }
-  /* 下载链接 */
-  .btn-download {
-    display: inline-block; margin-top: 16px; padding: 8px 12px;
-    background: #3b82f6; color: #fff; border-radius: 4px; text-decoration: none;
-  }
-  .btn-download:hover { background: #2563eb; }
-  </style>
-  
-  <style scoped>
   .preview-page {
-    padding: 16px;
+    padding: var(--spacing-2xl);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    border: 1px solid var(--border-light);
+    animation: slideUp 0.5s ease;
+    margin: var(--spacing-xl);
+    min-height: 80vh;
   }
-  
+
   .btn-back {
     background: transparent;
     border: none;
-    color: #3b82f6;
+    color: var(--primary-color);
     cursor: pointer;
-    font-size: 14px;
-    margin-bottom: 12px;
+    font-size: var(--font-sm);
+    font-weight: var(--font-medium);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-small);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
   }
+
   .btn-back:hover {
-    text-decoration: underline;
+    background: var(--bg-hover);
+    color: var(--primary-hover);
+    transform: translateX(-2px);
   }
-  
+
   .loading, .error {
     text-align: center;
-    color: #555;
-    margin-top: 40px;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-3xl);
+    font-size: var(--font-md);
+    font-weight: var(--font-medium);
   }
-  
+
+  .error {
+    color: var(--danger-color);
+    background: var(--danger-color-alpha);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--danger-color);
+  }
+
   .preview-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-light);
+    min-height: 60vh;
   }
-  
-  /* 图片预览 */
+
+  .preview-content {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  /* Image preview */
   .preview-content img {
     max-width: 90vw;
-    max-height: 80vh;
-    border-radius: 4px;
+    max-height: 70vh;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    transition: transform 0.3s ease;
   }
-  
-  /* PDF 内嵌预览：宽高可根据需要调整 */
+
+  .preview-content img:hover {
+    transform: scale(1.02);
+  }
+
+  /* PDF embedded preview */
   .iframe-preview {
     width: 90vw;
-    height: 80vh;
+    height: 70vh;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
   }
-  
-  /* 文本预览 */
+
+  /* Text preview */
   .text-preview {
-    background: #f7f7f7;
-    padding: 12px;
-    border-radius: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
     max-width: 90vw;
-    max-height: 80vh;
+    max-height: 60vh;
     overflow-y: auto;
     white-space: pre-wrap;
-    word-break: break-all;
+    word-break: break-word;
+    font-family: 'Courier New', monospace;
+    font-size: var(--font-sm);
+    line-height: 1.6;
+    color: var(--text-primary);
+    text-align: left;
   }
-  
-  /* 下载链接按钮 */
+
+  /* Download link button */
   .btn-download {
     display: inline-block;
-    margin-top: 16px;
-    padding: 8px 12px;
-    background: #3b82f6;
-    color: #fff;
-    border-radius: 4px;
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--border-radius);
     text-decoration: none;
+    font-weight: var(--font-medium);
+    font-size: var(--font-sm);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-light);
   }
+
   .btn-download:hover {
-    background: #2563eb;
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
   }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .preview-page {
+      margin: var(--spacing-md);
+      padding: var(--spacing-lg);
+    }
+    
+    .preview-content img,
+    .iframe-preview,
+    .text-preview {
+      max-width: 95vw;
+      max-height: 50vh;
+    }
+    
+    .preview-container {
+      padding: var(--spacing-md);
+    }  }
   </style>
   

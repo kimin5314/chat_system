@@ -65,127 +65,188 @@ function onConfirm() {
 </script>
 
 <style scoped>
-/* 背景遮罩 */
+/* Background overlay */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
 
-/* 弹窗主体 */
+/* Modal container */
 .modal {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 12px;
-  width: 360px;
+  background: var(--bg-primary);
+  padding: var(--spacing-2xl);
+  border-radius: var(--border-radius);
+  width: 400px;
   max-width: 90%;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-heavy);
+  border: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
+  animation: scaleIn 0.3s ease;
 }
 
-/* 标题 */
+/* Title */
 .modal-title {
   margin: 0;
-  margin-bottom: 16px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #333333;
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
   text-align: center;
 }
 
-/* 内容区域 */
+/* Content area */
 .modal-body {
   flex: 1;
 }
 
-/* 每一行表单项 */
+/* Form group styling */
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-lg);
 }
 
-/* 表单标签文字 */
+/* Form labels */
 .form-label {
-  font-size: 14px;
-  color: #555555;
-  margin-bottom: 6px;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-medium);
 }
 
-/* 输入框通用样式 */
+/* Input and select styling */
 .form-input,
 .form-select {
-  width: 90%;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-sm);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-small);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-/* 输入框获得焦点时的样式 */
+/* Focus states */
 .form-input:focus,
 .form-select:focus {
-  border-color: #3b82f6;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color-alpha);
+  background: var(--bg-primary);
 }
 
-/* 下拉框内文字对齐 */
+/* Select dropdown styling */
 .form-select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M0%200l5%206%205%20-6'%20fill%3D'%23555555'%20/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M0%200l5%206%205%20-6'%20fill%3D'%23667eea'%20/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right var(--spacing-md) center;
   background-size: 10px 6px;
   cursor: pointer;
+  padding-right: var(--spacing-2xl);
 }
 
-/* 底部按钮区域 */
+/* Footer buttons area */
 .modal-footer {
-  margin-top: 8px;
+  margin-top: var(--spacing-xl);
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-md);
 }
 
-/* 公共按钮样式 */
+/* Common button styling */
 .btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 6px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  border-radius: var(--border-radius-small);
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  min-width: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 次级按钮（取消） */
+/* Secondary button (Cancel) */
 .btn-secondary {
-  background-color: #f3f4f6;
-  color: #4b5563;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
 }
 
-/* 次级按钮悬停 */
 .btn-secondary:hover {
-  background-color: #e5e7eb;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
 }
 
-/* 主要按钮（确定） */
+/* Primary button (Confirm) */
 .btn-primary {
-  background-color: #3b82f6;
-  color: #ffffff;
-  margin-left: 12px;
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: var(--shadow-light);
 }
 
-/* 主要按钮悬停 */
 .btn-primary:hover {
-  background-color: #2563eb;
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .modal {
+    width: 95%;
+    padding: var(--spacing-xl);
+  }
+  
+  .modal-title {
+    font-size: var(--font-lg);
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
 }
 </style>

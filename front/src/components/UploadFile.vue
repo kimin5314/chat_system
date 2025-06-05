@@ -226,15 +226,19 @@ async function startUpload() {
 <style scoped>
 /* Upload Container */
 .upload-container {
-  margin: 20px 0;
+  margin: var(--spacing-lg) 0;
 }
 
 .file-upload-wrapper {
   display: flex;
-  gap: 15px;
+  gap: var(--spacing-md);
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
 }
 
 /* File Input Styling */
@@ -253,109 +257,132 @@ async function startUpload() {
 .file-input-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: #3b82f6;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--primary-gradient);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  transition: all 0.3s ease;
   text-decoration: none;
   min-width: 120px;
   justify-content: center;
+  box-shadow: var(--shadow-light);
 }
 
 .file-input-label:hover {
-  background: #2563eb;
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
 .file-input-label:active {
-  background: #1d4ed8;
+  transform: translateY(0);
+  box-shadow: var(--shadow-light);
 }
 
 /* Selected File Display */
 .selected-file {
   max-width: 300px;
-  padding: 8px 12px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
+  box-shadow: var(--shadow-light);
 }
 
 .file-name {
-  font-size: 14px;
-  color: #374151;
+  font-size: var(--font-sm);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 /* Upload Button */
 .upload-button {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: #3b82f6;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--success-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  transition: all 0.3s ease;
   min-width: 80px;
   justify-content: center;
+  box-shadow: var(--shadow-light);
 }
 
 .upload-button:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--success-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
 .upload-button:active:not(:disabled) {
-  background: #1d4ed8;
+  transform: translateY(0);
+  box-shadow: var(--shadow-light);
 }
 
 .upload-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #9ca3af;
+  background: var(--text-muted);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Icons */
 .upload-icon {
-  font-size: 16px;
+  font-size: var(--font-md);
   display: inline-block;
 }
 
 /* Responsive Design */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .file-upload-wrapper {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
   }
   
   .file-input-label,
   .upload-button {
     width: 100%;
-    max-width: 200px;
+    max-width: 250px;
   }
   
   .selected-file {
     width: 100%;
-    max-width: 200px;
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .upload-container {
+    margin: var(--spacing-md) 0;
   }
   
-  .modal-content {
-    width: 90%;
-    max-width: 300px;
-    padding: 20px;
+  .file-input-label,
+  .upload-button {
+    max-width: 200px;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-xs);
+  }
+  
+  .selected-file {
+    max-width: 200px;
   }
 }
 </style>
