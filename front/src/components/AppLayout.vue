@@ -86,12 +86,22 @@ onMounted(async () => {
   
   // Initialize chat system if user is logged in
   const token = Cookies.get('token')
-  if (token) {
+  const userId = Cookies.get('userId')
+  
+  if (token && userId) {
     try {
-      await chatStore.connectWebSocket()
+      console.log('Initializing chat WebSocket connection for user:', userId)
+      const connected = await chatStore.connectWebSocket()
+      if (connected) {
+        console.log('Chat WebSocket successfully connected')
+      } else {
+        console.warn('Chat WebSocket connection failed')
+      }
     } catch (error) {
       console.error('Failed to initialize chat system:', error)
     }
+  } else {
+    console.warn('No token or userId found, skipping WebSocket connection')
   }
 
   checkMobile()

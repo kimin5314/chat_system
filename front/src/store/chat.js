@@ -20,13 +20,16 @@ export const useChatStore = defineStore('chat', () => {
             // Set loading state during connection attempt
             isLoading.value = true
             
-            // Prefer sessionStorage, fall back to cookie for compatibility
-            const token = sessionStorage.getItem('chatToken') || Cookies.get('token')
+            // Use token from cookies primarily
+            const token = Cookies.get('token')
             if (!token) {
                 console.warn('No token available for WebSocket connection')
                 isConnected.value = false
                 return false
             }
+
+            // Store token for WebSocket reconnection
+            sessionStorage.setItem('chatToken', token)
 
             // Log connection attempt
             console.log('正在尝试连接聊天WebSocket...')
@@ -281,10 +284,15 @@ export const useChatStore = defineStore('chat', () => {
     
     // Update user online status
     function updateUserStatus(userId, isOnline) {
+        // Update conversation status
         const conversation = conversations.value.find(c => c.friendId === userId)
         if (conversation) {
             conversation.isOnline = isOnline
         }
+        
+        // Update friend status in friend store
+        const friendStore = useFriendStore()
+        friendStore.updateFriendStatus(userId, isOnline)
     }
     
     // Mark local messages as read (from WebSocket)
@@ -421,6 +429,8 @@ export const useChatStore = defineStore('chat', () => {
         messages.value = []
         currentConversation.value = null
         typingUsers.value.clear()
+        // Clear stored token on cleanup
+        sessionStorage.removeItem('chatToken')
     }
     
     return {

@@ -183,7 +183,7 @@ class ChatWebSocketService {
     }
 
     // Schedule reconnection with exponential backoff
-    scheduleReconnect(token) {
+    scheduleReconnect(originalToken) {
         this.reconnectAttempts++
         // Calculate delay with exponential backoff, capped at 30 seconds
         const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000)
@@ -193,7 +193,11 @@ class ChatWebSocketService {
         setTimeout(() => {
             if (this.reconnectAttempts <= this.maxReconnectAttempts) {
                 console.log(`Attempting reconnect ${this.reconnectAttempts}/${this.maxReconnectAttempts}`)
-                this.connect(token).catch(error => {
+                
+                // Get fresh token from storage for reconnection
+                const freshToken = sessionStorage.getItem('chatToken') || originalToken
+                
+                this.connect(freshToken).catch(error => {
                     console.error('Reconnect attempt failed:', error.message || 'Unknown error')
                 })
             } else {
