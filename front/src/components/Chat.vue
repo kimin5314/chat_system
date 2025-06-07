@@ -436,7 +436,7 @@ defineExpose({
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
-  z-index: 998;
+  z-index: 1001;
   animation: fadeIn 0.3s ease;
 }
 
@@ -956,7 +956,7 @@ defineExpose({
     border-bottom: 1px solid var(--border-light);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1002;
     box-shadow: var(--shadow-light);
   }
   
@@ -981,7 +981,7 @@ defineExpose({
     border-top: 1px solid var(--border-light);
     transform: translateY(100%);
     transition: transform 0.3s ease;
-    z-index: 999;
+    z-index: 1000;
     box-shadow: var(--shadow-heavy);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     background: var(--bg-primary);

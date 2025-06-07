@@ -86,7 +86,13 @@
     </div>
 
     <!-- 好友请求对话框 -->
-    <el-dialog v-model="showRequestDialog" title="好友请求">
+    <el-dialog 
+      v-model="showRequestDialog" 
+      title="好友请求"
+      :width="isMobile ? '90%' : '600px'"
+      :fullscreen="isMobile"
+      class="friend-request-dialog"
+    >
       <div v-if="friendRequests.length === 0">暂无好友请求</div>
       <div v-else>
         <div
@@ -127,14 +133,9 @@ const searchResults = ref([])
 const isSearching = ref(false)
 const defaultAvatar = 'default-avatar.jpg'
 const contextMenuVisible = ref(false)
+// Mobile detection
+const isMobile = ref(false)
 
-// Helper function to construct avatar URL
-const getAvatarUrl = (avatarPath) => {
-  if (!avatarPath) return '/default-avatar.png'
-  if (avatarPath.startsWith('http')) return avatarPath
-  const baseUrl = import.meta.env.VITE_API_BASE
-  return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
-}
 const contextMenuPosition = reactive({ x: 0, y: 0 })
 const contextMenuFriendId = ref(null)
 
@@ -362,11 +363,21 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to initialize chat store:', error)
   }
+  
+  // Mobile detection
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
 })
 
 onUnmounted(() => {
   // Chat store cleanup is handled by the chat component
+  window.removeEventListener('resize', checkMobile)
 })
+
+// Mobile detection function
+function checkMobile() {
+  isMobile.value = window.innerWidth < 768
+}
 </script>
 
 <style scoped>
@@ -620,6 +631,64 @@ onUnmounted(() => {
     width: 100%;
     margin-top: 10px;
     text-align: right;
+  }
+}
+
+/* Friend request dialog mobile styles */
+.friend-request-dialog {
+  --el-dialog-margin-top: 5vh;
+}
+
+@media (max-width: 768px) {
+  .friend-request-dialog .el-dialog {
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .friend-request-dialog .el-dialog__header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .friend-request-dialog .el-dialog__body {
+    padding: var(--spacing-md);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+  
+  .request-item {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .request-info {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .request-username {
+    font-size: var(--font-size-base);
+    display: block;
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .request-time {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+  
+  .request-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+  }
+  
+  .request-actions .el-button {
+    flex: 1;
+    max-width: 120px;
   }
 }
 

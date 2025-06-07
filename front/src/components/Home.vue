@@ -48,6 +48,17 @@ const unreadMessagesCount = computed(() => {
     total + (conv.unreadCount || 0), 0)
 })
 
+// Reactive file count based on actual data
+const fileCount = computed(() => {
+  // Update when stats change
+  return stats.value.totalFiles
+})
+
+// Reactive today's messages count
+const todayMessageCount = computed(() => {
+  return stats.value.todayMessages
+})
+
 const currentTime = ref(new Date().toLocaleString('zh-CN'))
 
 // Methods
@@ -102,21 +113,45 @@ const loadDashboardData = async () => {
 
     // Get recent conversations
     await chatStore.getConversations()
-    recentConversations.value = chatStore.conversations.slice(0, 5)
-
-    // Get file count (simplified - you might want to add an API endpoint for this)
+    recentConversations.value = chatStore.conversations.slice(0, 5)    // Get file count from the correct API endpoint
     try {
-      const filesResponse = await axios.get('/files', {
+      const filesResponse = await axios.get('/files/list', {
         headers: { 'Authorization': Cookies.get('token') }
       })
-      stats.value.totalFiles = filesResponse.data.data.total || 0
+      if (filesResponse.data.code === '200' && filesResponse.data.data) {
+        // Count total files from the response
+        stats.value.totalFiles = filesResponse.data.data.length || 0
+      } else {
+        stats.value.totalFiles = 0
+      }
     } catch (error) {
       console.log('Could not load file count:', error)
       stats.value.totalFiles = 0
     }
 
-    // Simulate today's messages count (you might want to add a real API for this)
-    stats.value.todayMessages = Math.floor(Math.random() * 20) + 5
+    // Get real message statistics
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const messagesResponse = await axios.get('/messages/stats', {
+        headers: { 'Authorization': Cookies.get('token') },
+        params: { date: today }
+      })
+      if (messagesResponse.data.code === '200') {
+        stats.value.todayMessages = messagesResponse.data.data.count || 0
+      } else {
+        // Fallback: count messages from conversations for today
+        const todayMessages = chatStore.conversations.reduce((total, conv) => {
+          // This is a simplified count - you might want to implement proper message counting
+          return total + (conv.lastMessageTime && 
+            new Date(conv.lastMessageTime).toDateString() === new Date().toDateString() ? 1 : 0)
+        }, 0)
+        stats.value.todayMessages = todayMessages
+      }
+    } catch (error) {
+      console.log('Could not load message stats:', error)
+      // Fallback: use conversation count as approximation
+      stats.value.todayMessages = chatStore.conversations.length
+    }
 
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
@@ -128,14 +163,25 @@ const updateTime = () => {
   currentTime.value = new Date().toLocaleString('zh-CN')
 }
 
+// Refresh dashboard data periodically
+const refreshData = async () => {
+  await loadDashboardData()
+}
+
 onMounted(() => {
   loadDashboardData()
   
   // Update time every minute
   const timeInterval = setInterval(updateTime, 60000)
   
-  // Cleanup interval on unmount
-  return () => clearInterval(timeInterval)
+  // Refresh data every 5 minutes
+  const dataInterval = setInterval(refreshData, 300000)
+  
+  // Cleanup intervals on unmount
+  return () => {
+    clearInterval(timeInterval)
+    clearInterval(dataInterval)
+  }
 })
 </script>
 
@@ -165,9 +211,8 @@ onMounted(() => {
       <div class="stat-card messages">
         <div class="stat-icon">
           <el-icon><ChatDotRound /></el-icon>
-        </div>
-        <div class="stat-content">
-          <h3>{{ stats.todayMessages }}</h3>
+        </div>        <div class="stat-content">
+          <h3>{{ todayMessageCount }}</h3>
           <p>今日消息</p>
         </div>
       </div>
@@ -184,9 +229,8 @@ onMounted(() => {
       <div class="stat-card files">
         <div class="stat-icon">
           <el-icon><Files /></el-icon>
-        </div>
-        <div class="stat-content">
-          <h3>{{ stats.totalFiles }}</h3>
+        </div>        <div class="stat-content">
+          <h3>{{ fileCount }}</h3>
           <p>共享文件</p>
         </div>
       </div>      <div class="stat-card unread">
@@ -620,30 +664,81 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
+  .dashboard-container {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm);
+  }
+  
   .dashboard-header {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-md);
   }
   
   .welcome-section h1 {
     font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .current-time {
+    font-size: var(--font-size-sm);
+  }
+  
+  .dashboard-avatar {
+    width: 60px;
+    height: 60px;
   }
   
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
   }
   
   .stat-card {
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+  
+  .stat-card h3 {
+    font-size: var(--font-size-lg);
+  }
+  
+  .stat-card p {
+    font-size: var(--font-size-xs);
   }
   
   .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .action-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .action-card {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
   
   .action-icon {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .recent-section {
+    padding: var(--spacing-md);
+  }
+  
+  .conversation-item {
+    padding: var(--spacing-sm);
+  }
+  
+  .conversation-item .avatar {
+    width: 36px;
+    height: 36px;
   }
 }
 
