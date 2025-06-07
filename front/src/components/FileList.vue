@@ -119,7 +119,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import request from '@/utils/request'
 import ShareDialog from './ShareDialog.vue'
 import { useRouter } from 'vue-router';
 import UploadFile from './UploadFile.vue'
@@ -228,7 +228,7 @@ async function doShare({ targetUserId, permission }) {
   console.log(permission)
   shareDialogVisible.value = false
   try {
-    const { data } = await axios.post(`${import.meta.env.VITE_API_BASE}/file/share`, null, {
+    const { data } = await request.post('/file/share', null, {
       headers:{ Authorization:`Bearer ${Cookies.get('token')}` },
       params:{ 
         targetUserId: targetUserId,
@@ -244,7 +244,7 @@ async function doShare({ targetUserId, permission }) {
 
 async function fetchFiles() {
   try {
-    const { data } =  await axios.get(`${import.meta.env.VITE_API_BASE}/file/list`, {
+    const { data } =  await request.get('/file/list', {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (data.code === 200) files.value = data.files
@@ -337,7 +337,7 @@ const filteredFiles = computed(() => {
 
 async function download(fileId) {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE}/file/download`, {
+    const response = await request.get('/file/download', {
       params: { fileId },
       responseType: 'blob',  // 关键：告诉 Axios 返回二进制流
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
@@ -376,7 +376,7 @@ async function remove(fileId) {
 
   try {
     // 注意：DELETE 方法里，URL 参数放在 params 中
-    const response = await axios.delete(`${import.meta.env.VITE_API_BASE}/file/delete`, {
+    const response = await request.delete('/file/delete', {
       headers: {
         'Authorization': `Bearer ${Cookies.get('token')}`
       },

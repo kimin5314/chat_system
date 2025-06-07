@@ -3,7 +3,7 @@
 import { useRoute } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
 import router from "@/router/index.js"
-import axios from "axios"
+import request from '@/utils/request'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@/store/chat'
 import Cookies from 'js-cookie'
@@ -45,13 +45,17 @@ const passwordchange = () => router.push('/app/passwordChange')
 const personalinfo = () => router.push('/app/person')
 
 // 用户信息
-const userInfo = ref(null)
+const userInfo = ref({
+  username: '未登录',
+  avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4'
+})
 
 const getUserInfo = async () => {
   // 直接从cookie获取token
   const token = Cookies.get('token')
   if (token) {
-    try {      const response = await axios.post(`${import.meta.env.VITE_API_BASE}/user/profile`, {}, {
+    try {
+      const response = await request.post('/user/profile', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -68,18 +72,32 @@ const getUserInfo = async () => {
       userInfo.value = user
       
       // Store user info for this tab session
-      sessionStorage.setItem('userId', response.data.data.id)
-      sessionStorage.setItem('username', response.data.data.username)
+      sessionStorage.setItem('userId', user.id)
+      sessionStorage.setItem('username', user.username)
       
       // Also store in cookies for compatibility
-      Cookies.set('userId', response.data.data.id)
+      Cookies.set('userId', user.id)
     } catch (error) {
       console.error('获取个人信息失败:', error)
+      // Set default user info to prevent undefined errors
+      userInfo.value = {
+        username: '未登录',
+        avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4'
+      }
+    }
+  } else {
+    // Set default user info when no token
+    userInfo.value = {
+      username: '未登录',
+      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4'
     }
   }
 }
 
-const user = computed(() => userInfo.value || {})
+const user = computed(() => userInfo.value || { 
+  username: '未登录', 
+  avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4' 
+})
 
 onMounted(async () => {
   await getUserInfo()
@@ -177,7 +195,7 @@ onUnmounted(() => {
             </template>
             <div class="user-info">
               <img
-                  :src="user.avatarUrl || '/default-avatar.png'"
+                  :src="user.avatarUrl || 'https://avatars.githubusercontent.com/u/583231?v=4'"
                   class="user-avatar"
               >
               <span class="user-name">

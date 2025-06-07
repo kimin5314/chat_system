@@ -24,7 +24,7 @@
 <script setup>
 import { ref } from 'vue';
 import Cookies from "js-cookie";
-import axios from "axios";
+import request from '@/utils/request';
 
 // 表单字段
 const userPassword = ref('');
@@ -54,9 +54,8 @@ const handleChangePassword = async () => {
   if (isLoading.value) return; // 防止重复提交
 
   isLoading.value = true;
-  try {
-    const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE}/user/password`,
+  try {    const response = await request.post(
+        '/user/password',
         {
           userPassword: userPassword.value,
           newPassword: newPassword.value,

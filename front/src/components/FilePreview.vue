@@ -29,7 +29,7 @@
   <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  import axios from 'axios'
+  import request from '@/utils/request'
   import Cookies from 'js-cookie'
   
   const route = useRoute()
@@ -61,7 +61,7 @@
   
     try {
       // 3. 发送请求
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE}/file/demo`, {
+      const response = await request.get('/file/demo', {
         responseType: 'blob',
         headers: { Authorization: `Bearer ${token}` },
         params: { fileId }

@@ -88,4 +88,28 @@ public class MessageController {
             return Result.error("获取未读消息数失败: " + e.getMessage());
         }
     }
+
+    @GetMapping("/stats")
+    public Result getMessageStats(@RequestParam(value = "date", required = false) String date,
+                                 HttpServletRequest request) {
+        try {
+            String token = request.getHeader("Authorization").replace("Bearer ", "");
+            Integer userId = JwtUtil.getUserIdFromToken(token);
+            
+            // If no date provided, use today
+            if (date == null || date.isEmpty()) {
+                date = java.time.LocalDate.now().toString();
+            }
+            
+            Long messageCount = messageService.getMessageCountByDate(userId, date);
+            
+            java.util.Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("count", messageCount);
+            stats.put("date", date);
+            
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error("获取消息统计失败: " + e.getMessage());
+        }
+    }
 }

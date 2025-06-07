@@ -44,7 +44,7 @@
 <script setup>
 import { ref , onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from "axios";
+import request from '@/utils/request';
 import Cookies from "js-cookie";
 
 const router = useRouter();
@@ -60,7 +60,7 @@ onMounted (async () => {
   const token = sessionStorage.getItem('token') || Cookies.get('token');
   if (token) {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE}/user/profile`, {}, {
+      const response = await request.post('/user/profile', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -108,7 +108,7 @@ const saveChanges = async() => {
 
 const update = async (newDisplayName) => {
   const token = sessionStorage.getItem('token') || Cookies.get('token');
-  await axios.post(`${import.meta.env.VITE_API_BASE}/user/update`,{
+  await request.post('/user/update',{
     displayName: newDisplayName
   },{
     headers:{
@@ -162,7 +162,7 @@ const uploadAvatar = async () => {
   
   try {
     // Upload avatar using a simple endpoint
-    const response = await axios.post(`${import.meta.env.VITE_API_BASE}/user/upload-avatar`, formData, {
+    const response = await request.post('/user/upload-avatar', formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'

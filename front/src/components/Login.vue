@@ -32,7 +32,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import request from '@/utils/request';
 import { ElMessage } from 'element-plus';
 import Cookies from 'js-cookie';
 
@@ -52,7 +52,7 @@ const login = async () => {
     return;
   }
   try {
-    const response = await axios.post(`${import.meta.env.VITE_API_BASE}/user/login`, {
+    const response = await request.post('/user/login', {
       username: username.value,
       password: password.value
     });

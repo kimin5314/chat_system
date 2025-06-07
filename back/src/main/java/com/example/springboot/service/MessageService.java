@@ -132,4 +132,17 @@ public class MessageService {
     public Long getUnreadCount(Integer receiverId, Integer senderId) {
         return messageRepository.countUnreadMessages(receiverId, senderId);
     }
+
+    public Long getMessageCountByDate(Integer userId, String date) {
+        try {
+            java.time.LocalDate localDate = java.time.LocalDate.parse(date);
+            java.time.LocalDateTime startOfDay = localDate.atStartOfDay();
+            java.time.LocalDateTime endOfDay = localDate.atTime(23, 59, 59);
+            
+            return messageRepository.countMessagesByUserAndDateRange(userId, startOfDay, endOfDay);
+        } catch (Exception e) {
+            // If date parsing fails, return 0
+            return 0L;
+        }
+    }
 }

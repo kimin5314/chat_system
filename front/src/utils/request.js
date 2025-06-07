@@ -27,15 +27,19 @@ request.interceptors.response.use(
         
         // 根据实际业务需求判断响应状态
         if (res.code !== 200 && res.code !== '200') {
-            console.log('请求失败：', res.message);
-            return Promise.reject(new Error(res.message || 'Error'));
+            console.log('请求失败：', res.msg || res.message);
+            return Promise.reject(new Error(res.msg || res.message || 'Error'));
         } else {
-            return res;
+            return response; // Return the full response, not just res
         }
     },
     error => {
         console.log('Request error:', error);
-        ElMessage.error(error.message || '请求失败');
+        if (error.response && error.response.data) {
+            ElMessage.error(error.response.data.msg || error.response.data.message || '请求失败');
+        } else {
+            ElMessage.error(error.message || '网络连接失败');
+        }
         return Promise.reject(error);
     }
 );

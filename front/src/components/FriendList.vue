@@ -118,7 +118,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { Search, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import request from '@/utils/request'
 import { useRouter } from 'vue-router'
 import { useFriendStore } from '@/store/friend'
 import { useChatStore } from '@/store/chat'
@@ -131,10 +131,17 @@ const chatStore = useChatStore()
 const searchKeyword = ref('')
 const searchResults = ref([])
 const isSearching = ref(false)
-const defaultAvatar = 'default-avatar.jpg'
 const contextMenuVisible = ref(false)
 // Mobile detection
 const isMobile = ref(false)
+
+// Helper function to construct avatar URL
+const getAvatarUrl = (avatarPath) => {
+  if (!avatarPath) return 'https://avatars.githubusercontent.com/u/583231?v=4'
+  if (avatarPath.startsWith('http')) return avatarPath
+  const baseUrl = import.meta.env.VITE_API_BASE
+  return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
+}
 
 const contextMenuPosition = reactive({ x: 0, y: 0 })
 const contextMenuFriendId = ref(null)
@@ -178,7 +185,7 @@ const handleSearch = async () => {
   }
   try {
     isSearching.value = true
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE}/user/search`, {
+    const res = await request.post('/user/search', {
       keyword: searchKeyword.value.trim()
     }, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
@@ -221,7 +228,7 @@ const sendFriendRequestFromSearch = async (user) => {
 
   try {
     // 获取当前用户信息
-    const currentUserRes = await axios.post(`${import.meta.env.VITE_API_BASE}/user/profile`, {}, {
+    const currentUserRes = await request.post('/user/profile', {}, {
       headers: { Authorization: `Bearer ${token}` }
     })
     const currentUser = currentUserRes.data.data
@@ -237,7 +244,7 @@ const sendFriendRequestFromSearch = async (user) => {
       return
     }
 
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE}/contacts/request`, {
+    const res = await request.post('/contacts/request', {
       userId: user.id
     }, {
       headers: { Authorization: `Bearer ${token}` }
@@ -277,7 +284,7 @@ const deleteFriend = async (friendId) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    const res = await axios.delete(`${import.meta.env.VITE_API_BASE}/contacts/${friendId}`, {
+    const res = await request.delete(`/contacts/${friendId}`, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (res.data.code === "200") {
@@ -299,7 +306,7 @@ const acceptRequest = async (index) => {
   const request = friendRequests.value[index]
   try {
     console.log('接受好友请求:', request)
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE}/contacts/requests/accept`, {
+    const res = await request.post('/contacts/requests/accept', {
       fromUserId: request.userId
     }, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
@@ -324,7 +331,7 @@ const acceptRequest = async (index) => {
 const rejectRequest = async (index) => {
   const request = friendRequests.value[index]
   try {
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE}/contacts/requests/reject`, {
+    const res = await request.post('/contacts/requests/reject', {
       fromUserId: request.userId
     }, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }

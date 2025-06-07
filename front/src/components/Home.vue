@@ -13,7 +13,7 @@ import {
   Clock,
   Bell
 } from '@element-plus/icons-vue'
-import axios from 'axios'
+import request from '@/utils/request'
 import Cookies from 'js-cookie'
 
 const router = useRouter()
@@ -102,9 +102,9 @@ const formatTime = (time) => {
 // Load dashboard data
 const loadDashboardData = async () => {
   try {
-    // Get user info
-    const userResponse = await axios.get('/user/info', {
-      headers: { 'Authorization': Cookies.get('token') }
+    // Get user info using the correct API endpoint
+    const userResponse = await request.post('/user/profile', {}, {
+      headers: { 'Authorization': `Bearer ${Cookies.get('token')}` }
     })
     userInfo.value = userResponse.data.data
 
@@ -113,12 +113,14 @@ const loadDashboardData = async () => {
 
     // Get recent conversations
     await chatStore.getConversations()
-    recentConversations.value = chatStore.conversations.slice(0, 5)    // Get file count from the correct API endpoint
+    recentConversations.value = chatStore.conversations.slice(0, 5)
+
+    // Get file count from the correct API endpoint
     try {
-      const filesResponse = await axios.get('/files/list', {
-        headers: { 'Authorization': Cookies.get('token') }
+      const filesResponse = await request.get('/file/list', {
+        headers: { 'Authorization': `Bearer ${Cookies.get('token')}` }
       })
-      if (filesResponse.data.code === '200' && filesResponse.data.data) {
+      if (filesResponse.data && filesResponse.data.data) {
         // Count total files from the response
         stats.value.totalFiles = filesResponse.data.data.length || 0
       } else {
@@ -127,13 +129,11 @@ const loadDashboardData = async () => {
     } catch (error) {
       console.log('Could not load file count:', error)
       stats.value.totalFiles = 0
-    }
-
-    // Get real message statistics
+    }    // Get real message statistics
     try {
       const today = new Date().toISOString().split('T')[0]
-      const messagesResponse = await axios.get('/messages/stats', {
-        headers: { 'Authorization': Cookies.get('token') },
+      const messagesResponse = await request.get('/messages/stats', {
+        headers: { 'Authorization': `Bearer ${Cookies.get('token')}` },
         params: { date: today }
       })
       if (messagesResponse.data.code === '200') {
@@ -699,7 +699,7 @@ onMounted(() => {
     gap: var(--spacing-sm);
     padding: var(--spacing-md);
   }
-  
+ 
   .stat-card h3 {
     font-size: var(--font-size-lg);
   }

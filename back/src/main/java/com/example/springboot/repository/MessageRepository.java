@@ -34,4 +34,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Modifying
     @Query("UPDATE Message m SET m.isRead = true WHERE m.receiverId = :receiverId AND m.senderId = :senderId AND m.isRead = false")
     void markMessagesAsRead(@Param("receiverId") Integer receiverId, @Param("senderId") Integer senderId);
+    
+    // Count messages by user and date range
+    @Query("SELECT COUNT(m) FROM Message m WHERE " +
+           "(m.senderId = :userId OR m.receiverId = :userId) AND " +
+           "m.createdAt >= :startDate AND m.createdAt <= :endDate")
+    Long countMessagesByUserAndDateRange(@Param("userId") Integer userId, 
+                                       @Param("startDate") java.time.LocalDateTime startDate, 
+                                       @Param("endDate") java.time.LocalDateTime endDate);
 }
