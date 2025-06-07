@@ -54,10 +54,8 @@ export const useFriendStore = defineStore('friend', () => {
 
     function addFriendRequest(request) {
         friendRequests.value.push(request)
-    }
-
-    function removeFriendRequest(requestId) {
-        friendRequests.value = friendRequests.value.filter(r => r.id !== requestId)
+    }    function removeFriendRequest(requestId) {
+        friendRequests.value = friendRequests.value.filter(r => r.id !== requestId || r.userId !== requestId)
     }
 
     function addFriend(friend) {

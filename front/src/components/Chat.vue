@@ -163,8 +163,8 @@ const sidebarVisible = ref(false)
 const conversations = computed(() => chatStore.conversations)
 const currentConversation = computed(() => chatStore.currentConversation)
 const messages = computed(() => {
-  // Include forceRefresh to trigger reactivity updates
-  chatStore.forceRefresh
+  // Include messageUpdateTrigger to trigger reactivity updates
+  chatStore.messageUpdateTrigger
   return chatStore.messages
 })
 const isLoading = computed(() => chatStore.isLoading)

@@ -12,7 +12,7 @@ export const useChatStore = defineStore('chat', () => {
     const isLoading = ref(false)
     const isConnected = ref(false)
     const typingUsers = ref(new Set())
-    const forceRefresh = ref(false) // Helper to force UI updates
+    const messageUpdateTrigger = ref(0) // Helper to force UI updates
 
     // WebSocket connection management
     async function connectWebSocket() {
@@ -84,6 +84,15 @@ export const useChatStore = defineStore('chat', () => {
             updateUserStatus(data.userId, false)
         })
 
+        // Handle friend status updates (for backwards compatibility)
+        chatWebSocketService.on(WS_MESSAGE_TYPES.FRIEND_ONLINE, (data) => {
+            updateUserStatus(data.userId, true)
+        })
+
+        chatWebSocketService.on(WS_MESSAGE_TYPES.FRIEND_OFFLINE, (data) => {
+            updateUserStatus(data.userId, false)
+        })
+
         // Handle message read status
         chatWebSocketService.on(WS_MESSAGE_TYPES.MESSAGE_READ, (data) => {
             markLocalMessagesAsRead(data.senderId, data.receiverId)
@@ -92,6 +101,21 @@ export const useChatStore = defineStore('chat', () => {
         // Handle typing indicators
         chatWebSocketService.on(WS_MESSAGE_TYPES.TYPING, (data) => {
             handleTypingIndicator(data)
+        })
+
+        // Handle friend requests and responses
+        chatWebSocketService.on(WS_MESSAGE_TYPES.FRIEND_REQUEST, (data) => {
+            console.log('Received friend request:', data)
+            const friendStore = useFriendStore()
+            friendStore.addFriendRequest(data)
+        })
+
+        chatWebSocketService.on(WS_MESSAGE_TYPES.FRIEND_RESPONSE, (data) => {
+            console.log('Received friend response:', data)
+            if (data.accepted) {
+                const friendStore = useFriendStore()
+                friendStore.addFriend(data.friend)
+            }
         })
 
         // Handle connection status
@@ -230,6 +254,8 @@ export const useChatStore = defineStore('chat', () => {
             const existingMessage = messages.value.find(m => m.id === message.id)
             if (!existingMessage) {
                 messages.value.push(message)
+                // Trigger reactivity update
+                messageUpdateTrigger.value++
             }
         }
         
@@ -441,6 +467,7 @@ export const useChatStore = defineStore('chat', () => {
         isLoading,
         isConnected,
         typingUsers,
+        messageUpdateTrigger,
         
         // WebSocket methods
         connectWebSocket,

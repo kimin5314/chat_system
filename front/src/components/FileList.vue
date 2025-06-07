@@ -388,8 +388,8 @@ async function remove(fileId) {
     // 根据后端返回的状态判断
     if (response.status === 200) {
       alert('删除成功')
-      // TODO: 如果有文件列表，记得刷新
-      // await fetchFiles()
+      // Refresh the file list after successful deletion
+      await fetchFiles()
     } else {
       alert('删除失败：' + response.data)
     }
@@ -442,7 +442,9 @@ function handleUploadProgress(progress) {
 function handleUploadComplete({ fileId, fileName }) {
   uploadStatus.value.isUploading = false
   // Refresh the file list to show the new file
-  fetchFiles()
+  setTimeout(() => {
+    fetchFiles()
+  }, 500) // Small delay to ensure the file is properly saved on the server
 }
 
 function handleUploadError(error) {

@@ -109,15 +109,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { Search, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
-import { connectWebSocket } from '@/utils/websocket'
 import { useRouter } from 'vue-router'
+import { useFriendStore } from '@/store/friend'
+import { useChatStore } from '@/store/chat'
 import Cookies from 'js-cookie'
 
 const router = useRouter()
+const friendStore = useFriendStore()
+const chatStore = useChatStore()
 
 const searchKeyword = ref('')
 const searchResults = ref([])
@@ -135,9 +138,9 @@ const getAvatarUrl = (avatarPath) => {
 const contextMenuPosition = reactive({ x: 0, y: 0 })
 const contextMenuFriendId = ref(null)
 
-const friends = ref([])
+const friends = computed(() => friendStore.friends)
 const showRequestDialog = ref(false)
-const friendRequests = ref([])
+const friendRequests = computed(() => friendStore.friendRequests)
 
 // 时间格式化函数
 const formatTime = (time) => {
@@ -149,32 +152,17 @@ const formatTime = (time) => {
 // 获取好友列表
 const getFriendsList = async () => {
   try {
-    console.log('开始获取好友列表')
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE}/contacts/list`, {
-      headers: { Authorization: `Bearer ${Cookies.get('token')}` }
-    })
-    console.log('获取好友列表响应:', res.data)
-    if (res.data.code === "200") {  // 统一使用字符串 "200"
-      friends.value = res.data.data
-      console.log('更新后的好友列表:', friends.value)
-    } else {
-      throw new Error(res.data.message || '获取好友列表失败')
-    }
+    await friendStore.getFriendsList()
   } catch (err) {
     console.error('获取好友列表失败:', err)
-    ElMessage.error(err.message || '获取好友列表失败')
+    ElMessage.error('获取好友列表失败')
   }
 }
 
 // 获取好友请求
 const getFriendRequests = async () => {
   try {
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE}/contacts/requests`, {
-      headers: { Authorization: `Bearer ${Cookies.get('token')}` }
-    })
-    if (res.data.code === "200") {
-      friendRequests.value = res.data.data
-    }
+    await friendStore.getFriendRequests()
   } catch (err) {
     console.error('获取好友请求失败:', err)
     ElMessage.error('获取好友请求失败')
@@ -292,7 +280,7 @@ const deleteFriend = async (friendId) => {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (res.data.code === "200") {
-      friends.value = friends.value.filter(f => f.id !== friendId)
+      friendStore.removeFriend(friendId)
       ElMessage.success('删除成功')
     } else {
       throw new Error(res.data.message)
@@ -318,7 +306,7 @@ const acceptRequest = async (index) => {
     console.log('接受好友请求响应:', res.data)
     if (res.data.code === "200") {
       ElMessage.success('已添加好友')
-      friendRequests.value.splice(index, 1)
+      friendStore.removeFriendRequest(request.id)
       console.log('准备刷新好友列表')
       await getFriendsList()  // 使用 await 确保获取完成
       console.log('好友列表刷新完成')
@@ -341,7 +329,7 @@ const rejectRequest = async (index) => {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (res.data.code === 200) {
-      friendRequests.value.splice(index, 1)
+      friendStore.removeFriendRequest(request.id)
       ElMessage.info('已拒绝好友请求')
     } else {
       throw new Error(res.data.message)
@@ -364,40 +352,20 @@ const openChat = (friendId) => {
 }
 
 // WebSocket 实时推送
-onMounted(() => {
-  getFriendsList()
-  getFriendRequests()
+onMounted(async () => {
+  await getFriendsList()
+  await getFriendRequests()
 
-  const token = Cookies.get('token')
-  if (!token) {
-    ElMessage.error('未登录，无法建立WebSocket连接')
-    return
+  // Initialize chat store which will handle WebSocket connections and status updates
+  try {
+    await chatStore.initialize()
+  } catch (error) {
+    console.error('Failed to initialize chat store:', error)
   }
+})
 
-  connectWebSocket(token, (msg) => {
-    console.log('收到WebSocket消息:', msg)
-
-    try {
-      const message = typeof msg === 'string' ? JSON.parse(msg) : msg
-
-      if (message.type === 'FRIEND_REQUEST') {
-        console.log('收到好友请求:', message.data)
-        getFriendRequests()
-        ElMessage.info(`收到来自 ${message.data.username} 的好友请求`)
-      }
-      if (message.type === 'FRIEND_RESPONSE') {
-        console.log('收到好友响应:', message.data)
-        if (message.data.accepted) {
-          ElMessage.success(`${message.data.username} 接受了你的好友请求`)
-          getFriendsList()
-        } else {
-          ElMessage.info(`${message.data.username} 拒绝了你的好友请求`)
-        }
-      }
-    } catch (error) {
-      console.error('处理WebSocket消息出错:', error)
-    }
-  })
+onUnmounted(() => {
+  // Chat store cleanup is handled by the chat component
 })
 </script>
 
