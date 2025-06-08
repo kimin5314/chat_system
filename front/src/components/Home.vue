@@ -68,7 +68,14 @@ const goToFiles = () => router.push('/app/fileList')
 const goToProfile = () => router.push('/app/person')
 
 const openChat = (friendId) => {
-  router.push(`/app/chat/${friendId}`)
+  // Store the selected friend ID for session management
+  sessionStorage.setItem('selectedFriendId', friendId)
+  
+  // Navigate to chat page with friend ID as query parameter
+  router.push({
+    path: '/app/chat',
+    query: { friendId: friendId }
+  })
 }
 
 const getAvatarUrl = (avatarPath) => {
