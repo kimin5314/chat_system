@@ -33,13 +33,20 @@ request.interceptors.response.use(
         
         const res = response.data;
         
-        // 根据实际业务需求判断响应状态
-        if (res.code !== 200 && res.code !== '200') {
-            console.log('请求失败：', res.msg || res.message);
-            return Promise.reject(new Error(res.msg || res.message || 'Error'));
-        } else {
-            return response; // Return the full response, not just res
+        // Handle plain string responses (like from /file/share endpoint)
+        if (typeof res === 'string') {
+            return response;
         }
+        
+        // Handle JSON responses with code property
+        if (res && typeof res === 'object' && res.code !== undefined) {
+            if (res.code !== 200 && res.code !== '200') {
+                console.log('请求失败：', res.msg || res.message);
+                return Promise.reject(new Error(res.msg || res.message || 'Error'));
+            }
+        }
+        
+        return response;
     },
     error => {
         console.log('Request error:', error);

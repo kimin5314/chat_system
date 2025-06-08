@@ -188,18 +188,16 @@ public class FileService {
         fileStorageRepository.delete(file);
 
         return "File deleted successfully";
-    }
-
-    // 文件共享
-    public String shareFile(Integer userId, Integer targetuserId, Long fileId, PermissionType permission) {
+    }    // 文件共享
+    public String shareFile(Integer userId, String targetUsername, Long fileId, PermissionType permission) {
         // 查找文件
         fileStorage file = fileStorageRepository.findById(fileId).orElse(null);
         if (file == null) {
             return "File not found";
         }
 
-        // 查找目标用户
-        User targetUser = userRepository.findById(targetuserId).orElse(null);
+        // 查找目标用户 - 使用用户名而不是用户ID
+        User targetUser = userRepository.findByUsername(targetUsername);
         if (targetUser == null) {
             return "Target user not found";
         }
@@ -218,7 +216,7 @@ public class FileService {
 //        System.out.println(targetUser);
         // 创建文件权限
         filePermission filePermission = new filePermission();
-        filePermission.setUserId(targetuserId);
+        filePermission.setUserId(targetUser.getId()); // 使用目标用户的ID
         filePermission.setFile(file);
         filePermission.setPermission(permission);
 

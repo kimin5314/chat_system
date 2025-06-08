@@ -118,6 +118,29 @@ public class UserController {
     }
 
     /**
+     * 搜索用户
+     * @param keyword 搜索关键词
+     * @return 匹配的用户列表
+     */
+    @GetMapping("/search")
+    public Result searchUsers(@RequestParam String keyword) {
+        List<User> users = userService.searchUsersByKeyword(keyword);
+        
+        // 创建返回数据，隐藏敏感信息
+        List<Map<String, Object>> userList = new ArrayList<>();
+        for (User user : users) {
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", user.getId());
+            userInfo.put("username", user.getUsername());
+            userInfo.put("displayName", user.getDisplayName());
+            userInfo.put("avatarUrl", user.getAvatarUrl());
+            userList.add(userInfo);
+        }
+        
+        return Result.success(userList);
+    }
+
+    /**
      * 修改用户信息
      */
     @PostMapping("/update")

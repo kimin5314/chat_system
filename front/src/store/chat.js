@@ -411,6 +411,7 @@ export const useChatStore = defineStore('chat', () => {
             const newConversation = {
                 friendId: friend.id,
                 friendUsername: friend.username,
+                friendDisplayName: friend.displayName,
                 friendAvatar: friend.avatar,
                 lastMessage: '',
                 unreadCount: 0,

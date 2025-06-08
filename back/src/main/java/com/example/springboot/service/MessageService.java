@@ -112,6 +112,7 @@ public class MessageService {
             ConversationDto conversation = new ConversationDto();
             conversation.setFriendId(friendId);
             conversation.setFriendUsername(friend.getUsername());
+            conversation.setFriendDisplayName(friend.getDisplayName());
             conversation.setFriendAvatar(friend.getAvatarUrl());
             conversation.setLastMessage(message.getContent());
             conversation.setUnreadCount(unreadCount);

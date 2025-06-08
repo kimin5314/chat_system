@@ -223,22 +223,57 @@ function share(fileId) {
   shareDialogVisible.value = true
 }
 
-async function doShare({ targetUserId, permission }) {
-  console.log(targetUserId)
-  console.log(permission)
+async function doShare({ targetUsername, permission }) {
+  console.log('Sharing file:', currentFileId.value, 'to user:', targetUsername, 'with permission:', permission)
   shareDialogVisible.value = false
   try {
-    const { data } = await request.post('/file/share', null, {
+    const response = await request.post('/file/share', null, {
       headers:{ Authorization:`Bearer ${Cookies.get('token')}` },
       params:{ 
-        targetUserId: targetUserId,
+        targetUsername: targetUsername,
         fileId: currentFileId.value, 
         permission 
       }
     })
-    alert(data)
+    
+    // Handle different response structures
+    const data = response.data
+    
+    // For string responses (like from /file/share)
+    if (typeof data === 'string') {
+      if (data === 'File shared successfully') {
+        alert('文件共享成功！')
+      } else {
+        alert('共享结果：' + data)
+      }
+    }
+    // For JSON responses with code property
+    else if (data && typeof data === 'object') {
+      if (data.code === 200 || data.code === '200') {
+        alert('文件共享成功！')
+      } else {
+        alert('共享成功：' + (data.message || data.msg || '操作完成'))
+      }
+    }
+    // Fallback
+    else {
+      alert('文件共享操作完成')
+    }
   } catch (err) {
-    alert('共享失败：'+(err.response?.data||err.message))
+    console.error('File share error:', err)
+    let errorMessage = '共享失败'
+    
+    if (err.response?.data) {
+      if (typeof err.response.data === 'string') {
+        errorMessage += '：' + err.response.data
+      } else {
+        errorMessage += '：' + (err.response.data.msg || err.response.data.message || err.response.data)
+      }
+    } else if (err.message) {
+      errorMessage += '：' + err.message
+    }
+    
+    alert(errorMessage)
   }
 }
 

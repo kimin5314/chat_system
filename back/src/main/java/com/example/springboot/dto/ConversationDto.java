@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class ConversationDto {
     private Integer friendId;
     private String friendUsername;
+    private String friendDisplayName;
     private String friendAvatar;
     private String lastMessage;
     private Long unreadCount;
@@ -16,11 +17,12 @@ public class ConversationDto {
 
     public ConversationDto() {}
 
-    public ConversationDto(Integer friendId, String friendUsername, String friendAvatar, 
+    public ConversationDto(Integer friendId, String friendUsername, String friendDisplayName, String friendAvatar, 
                           String lastMessage, Long unreadCount, Boolean isOnline, 
                           LocalDateTime lastMessageTime) {
         this.friendId = friendId;
         this.friendUsername = friendUsername;
+        this.friendDisplayName = friendDisplayName;
         this.friendAvatar = friendAvatar;
         this.lastMessage = lastMessage;
         this.unreadCount = unreadCount;
@@ -43,6 +45,14 @@ public class ConversationDto {
 
     public void setFriendUsername(String friendUsername) {
         this.friendUsername = friendUsername;
+    }
+
+    public String getFriendDisplayName() {
+        return friendDisplayName;
+    }
+
+    public void setFriendDisplayName(String friendDisplayName) {
+        this.friendDisplayName = friendDisplayName;
     }
 
     public String getFriendAvatar() {

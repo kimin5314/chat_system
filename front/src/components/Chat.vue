@@ -7,7 +7,7 @@
         聊天列表
       </el-button>
       <div v-if="currentConversation" class="mobile-current-chat">
-        {{ currentConversation.friendUsername }}
+        {{ getConversationDisplayName(currentConversation) }}
       </div>
     </div>
 
@@ -44,7 +44,7 @@
             <div v-if="conversation.isOnline" class="online-indicator"></div>
           </div>
           <div class="conversation-info">
-            <div class="username">{{ conversation.friendUsername }}</div>
+            <div class="username">{{ getConversationDisplayName(conversation) }}</div>
             <div class="last-message">{{ conversation.lastMessage || '开始聊天...' }}</div>
           </div>
           <div class="conversation-meta">
@@ -75,7 +75,7 @@
           <div class="friend-info">
             <img :src="getAvatarUrl(currentConversation.friendAvatar)" :alt="currentConversation.friendUsername">
             <div>
-              <h4>{{ currentConversation.friendUsername }}</h4>
+              <h4>{{ getConversationDisplayName(currentConversation) }}</h4>
               <span class="status" :class="{ 'online': currentConversation.isOnline }">
                 {{ currentConversation.isOnline ? '在线' : '离线' }}
               </span>
@@ -183,6 +183,14 @@ const getAvatarUrl = (avatarPath) => {
   return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
 }
 
+// Helper function to format conversation display name
+const getConversationDisplayName = (conversation) => {
+  if (conversation.friendDisplayName && conversation.friendDisplayName !== conversation.friendUsername) {
+    return `${conversation.friendDisplayName}(${conversation.friendUsername})`
+  }
+  return conversation.friendUsername
+}
+
 // Initialize chat
 onMounted(async () => {
   try {
@@ -244,6 +252,7 @@ async function startConversationWithFriend(friendId) {
     const newConversation = {
       friendId: friend.id,
       friendUsername: friend.username,
+      friendDisplayName: friend.displayName,
       friendAvatar: friend.avatar,
       lastMessage: '',
       unreadCount: 0,

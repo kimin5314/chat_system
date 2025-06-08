@@ -1,3 +1,5 @@
 .vscode/
 
 uploads/*
+dev-start.sh
+prod-build.sh

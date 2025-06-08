@@ -100,11 +100,9 @@ public class FileController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to delete file: " + e.getMessage());
         }
-    }
-
-    // 文件共享 API
+    }    // 文件共享 API
     @PostMapping("/share")
-    public ResponseEntity<?> shareFile(@RequestParam Integer targetUserId,
+    public ResponseEntity<?> shareFile(@RequestParam String targetUsername,
                                        @RequestParam Long fileId,
                                        @RequestParam PermissionType permission,
                                        @RequestHeader(value = "Authorization") String authorizationHeader) {
@@ -112,7 +110,7 @@ public class FileController {
 
             Integer userId = extractUserIdFromToken(authorizationHeader);
             // 调用 FileService 共享文件
-            String message = fileService.shareFile(userId, targetUserId, fileId, permission);
+            String message = fileService.shareFile(userId, targetUsername, fileId, permission);
 
             if (message.equals("File shared successfully")) {
                 return ResponseEntity.ok().body(message);

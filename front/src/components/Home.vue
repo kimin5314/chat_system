@@ -109,6 +109,14 @@ const formatTime = (time) => {
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 
+// Helper function to format conversation display name
+const getConversationDisplayName = (conversation) => {
+  if (conversation.friendDisplayName && conversation.friendDisplayName !== conversation.friendUsername) {
+    return `${conversation.friendDisplayName}(${conversation.friendUsername})`
+  }
+  return conversation.friendUsername
+}
+
 // Load dashboard data
 const loadDashboardData = async () => {
   try {    // Get user info using the correct API endpoint
@@ -320,10 +328,9 @@ onMounted(() => {
           <div class="conversation-avatar">
             <img :src="getAvatarUrl(conversation.friendAvatar)" :alt="conversation.friendUsername">
             <div v-if="conversation.isOnline" class="online-dot"></div>
-          </div>
-          <div class="conversation-info">
+          </div>          <div class="conversation-info">
             <div class="conversation-header">
-              <span class="conversation-name">{{ conversation.friendUsername }}</span>
+              <span class="conversation-name">{{ getConversationDisplayName(conversation) }}</span>
               <span class="conversation-time">{{ formatTime(conversation.lastMessageTime) }}</span>
             </div>
             <div class="conversation-message">

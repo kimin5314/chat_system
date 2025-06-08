@@ -39,7 +39,7 @@
         <div class="search-result-content">
           <div class="user-info">
             <img :src="getAvatarUrl(user.avatarUrl)" :alt="user.username" class="friend-avatar" />
-            <span class="friend-username">{{ user.username }}</span>
+            <span class="friend-username">{{ user.displayName || user.username }}</span>
           </div>
           <el-button
               type="primary"
@@ -62,7 +62,7 @@
         >
         <div class="friend-info">
           <img :src="getAvatarUrl(friend.avatar)" :alt="friend.username" class="friend-avatar" />
-          <span class="friend-username">{{ friend.username }}</span>
+          <span class="friend-username">{{ getFriendDisplayName(friend) }}</span>
           <div class="status-indicator" :class="{ online: friend.online }"></div>
         </div>
         <div class="friend-actions">
@@ -141,6 +141,14 @@ const getAvatarUrl = (avatarPath) => {
   if (avatarPath.startsWith('http')) return avatarPath
   const baseUrl = import.meta.env.VITE_API_BASE
   return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
+}
+
+// Helper function to format friend display name
+const getFriendDisplayName = (friend) => {
+  if (friend.displayName && friend.displayName !== friend.username) {
+    return `${friend.displayName}(${friend.username})`
+  }
+  return friend.username
 }
 
 const contextMenuPosition = reactive({ x: 0, y: 0 })
