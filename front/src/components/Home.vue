@@ -81,6 +81,9 @@ const openChat = (friendId) => {
 const getAvatarUrl = (avatarPath) => {
   if (!avatarPath) return 'https://avatars.githubusercontent.com/u/583231?v=4'
   if (avatarPath.startsWith('http')) return avatarPath
+  if (avatarPath.startsWith('/uploads')) {
+    return `${import.meta.env.VITE_API_BASE}${avatarPath}`
+  }
   const baseUrl = import.meta.env.VITE_API_BASE
   return `${baseUrl}${avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath}`
 }
@@ -108,12 +111,20 @@ const formatTime = (time) => {
 
 // Load dashboard data
 const loadDashboardData = async () => {
-  try {
-    // Get user info using the correct API endpoint
+  try {    // Get user info using the correct API endpoint
     const userResponse = await request.post('/user/profile', {}, {
       headers: { 'Authorization': `Bearer ${Cookies.get('token')}` }
     })
-    userInfo.value = userResponse.data.data
+    const user = userResponse.data.data
+    
+    // Handle avatar URL - if it starts with /uploads, prepend the API base URL
+    if (user.avatarUrl && user.avatarUrl.startsWith('/uploads')) {
+      user.avatarUrl = `${import.meta.env.VITE_API_BASE}${user.avatarUrl}`
+    } else if (!user.avatarUrl) {
+      user.avatarUrl = 'https://avatars.githubusercontent.com/u/583231?v=4'
+    }
+    
+    userInfo.value = user
 
     // Get friends list (online status will be updated via WebSocket)
     await friendStore.getFriendsList()
@@ -203,9 +214,8 @@ onMounted(() => {
           {{ currentTime }}
         </p>
       </div>
-      <div class="user-avatar-section">
-        <img 
-          :src="getAvatarUrl(userInfo.avatar)" 
+      <div class="user-avatar-section">        <img 
+          :src="userInfo.avatarUrl || 'https://avatars.githubusercontent.com/u/583231?v=4'" 
           :alt="userInfo.username"
           class="dashboard-avatar"
           @click="goToProfile"
