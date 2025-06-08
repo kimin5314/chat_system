@@ -89,10 +89,10 @@ const initWebSocket = (token) => {
   socket.onopen = () => {
     console.log("WebSocket 连接成功");
   };
-
   socket.onmessage = (event) => {
     console.log("收到 WebSocket 消息:", event.data);
-    ElMessage.info(`通知：${event.data}`);
+    // Removed debugging popup notification
+    // ElMessage.info(`通知：${event.data}`);
   };
 
   socket.onclose = () => {

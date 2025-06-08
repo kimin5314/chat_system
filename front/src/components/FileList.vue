@@ -124,6 +124,18 @@ import ShareDialog from './ShareDialog.vue'
 import { useRouter } from 'vue-router';
 import UploadFile from './UploadFile.vue'
 import Cookies from 'js-cookie';
+import { ElNotification } from 'element-plus'
+
+// Add notification function for consistent styling
+const showNotification = (message, type = 'info') => {
+  ElNotification({
+    title: type === 'success' ? '操作成功' : type === 'error' ? '操作失败' : '提示',
+    message: message,
+    type: type,
+    duration: 3000,
+    position: 'top-right'
+  })
+}
 
 const pageSize = 6
 const currentPage = ref(1)
@@ -238,26 +250,25 @@ async function doShare({ targetUsername, permission }) {
     
     // Handle different response structures
     const data = response.data
-    
-    // For string responses (like from /file/share)
+      // For string responses (like from /file/share)
     if (typeof data === 'string') {
       if (data === 'File shared successfully') {
-        alert('文件共享成功！')
+        showNotification('文件共享成功！', 'success')
       } else {
-        alert('共享结果：' + data)
+        showNotification('共享结果：' + data, 'info')
       }
     }
     // For JSON responses with code property
     else if (data && typeof data === 'object') {
       if (data.code === 200 || data.code === '200') {
-        alert('文件共享成功！')
+        showNotification('文件共享成功！', 'success')
       } else {
-        alert('共享成功：' + (data.message || data.msg || '操作完成'))
+        showNotification('共享成功：' + (data.message || data.msg || '操作完成'), 'success')
       }
     }
     // Fallback
     else {
-      alert('文件共享操作完成')
+      showNotification('文件共享操作完成', 'success')
     }
   } catch (err) {
     console.error('File share error:', err)
@@ -268,12 +279,11 @@ async function doShare({ targetUsername, permission }) {
         errorMessage += '：' + err.response.data
       } else {
         errorMessage += '：' + (err.response.data.msg || err.response.data.message || err.response.data)
-      }
-    } else if (err.message) {
+      }    } else if (err.message) {
       errorMessage += '：' + err.message
     }
     
-    alert(errorMessage)
+    showNotification(errorMessage, 'error')
   }
 }
 
@@ -283,10 +293,9 @@ async function fetchFiles() {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (data.code === 200) files.value = data.files
-    else console.log(data.message)
-  } catch (e) {
+    else console.log(data.message)  } catch (e) {
     console.error(e)
-    alert('获取文件列表失败')
+    showNotification('获取文件列表失败', 'error')
   }
 }
 
@@ -415,17 +424,14 @@ async function download(fileId) {
       } else {
         errorMessage = err.response.data?.msg || err.response.data?.message || err.message;
       }
-    } else {
-      errorMessage = err.message;
+    } else {      errorMessage = err.message;
     }
     
-    alert(errorMessage);
+    showNotification(errorMessage, 'error');
   }
 }
 
 async function remove(fileId) {
-  if (!confirm(`确认要删除文件 #${fileId}？`)) return
-
   try {
     // 注意：DELETE 方法里，URL 参数放在 params 中
     const response = await request.delete('/file/delete', {
@@ -439,16 +445,16 @@ async function remove(fileId) {
 
     // 根据后端返回的状态判断
     if (response.status === 200) {
-      alert('删除成功')
+      showNotification('删除成功', 'success')
       // Refresh the file list after successful deletion
       await fetchFiles()
     } else {
-      alert('删除失败：' + response.data)
+      showNotification('删除失败：' + response.data, 'error')
     }
   } catch (err) {
     console.error('删除请求失败', err)
     const msg = err.response?.data || err.message
-    alert('删除失败：' + msg)
+    showNotification('删除失败：' + msg, 'error')
   }
 }
 
