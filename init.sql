@@ -124,36 +124,6 @@ CREATE TABLE IF NOT EXISTS `file_permission` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===================================================
--- Insert Sample Data (Optional)
--- ===================================================
-
--- Sample Users
-INSERT INTO `user` (`username`, `password`, `display_name`, `avatar_url`) VALUES
-('admin', '$2a$10$N.ZH7Q2EqKS3S3K8h5/7C.fX7JXr6C4nK8Qd5C5z0D4z0d4z0d4z0', 'Administrator', NULL),
-('user1', '$2a$10$N.ZH7Q2EqKS3S3K8h5/7C.fX7JXr6C4nK8Qd5C5z0D4z0d4z0d4z0', 'User One', NULL),
-('user2', '$2a$10$N.ZH7Q2EqKS3S3K8h5/7C.fX7JXr6C4nK8Qd5C5z0D4z0d4z0d4z0', 'User Two', NULL),
-('testuser', '$2a$10$N.ZH7Q2EqKS3S3K8h5/7C.fX7JXr6C4nK8Qd5C5z0D4z0d4z0d4z0', 'Test User', NULL);
-
--- Sample Contact Relationships (Friend connections)
-INSERT INTO `contacts` (`user_id`, `contact_id`, `status`) VALUES
-(1, 2, 'accepted'),
-(2, 1, 'accepted'),
-(1, 3, 'accepted'),
-(3, 1, 'accepted'),
-(2, 3, 'pending'),
-(1, 4, 'accepted'),
-(4, 1, 'accepted');
-
--- Sample Messages
-INSERT INTO `message` (`sender_id`, `receiver_id`, `content`, `message_type`, `is_read`) VALUES
-(1, 2, 'Hello! How are you doing today?', 'TEXT', TRUE),
-(2, 1, 'Hi there! I am doing great, thanks for asking!', 'TEXT', TRUE),
-(1, 2, 'That is wonderful to hear!', 'TEXT', FALSE),
-(1, 3, 'Welcome to the chat system!', 'TEXT', TRUE),
-(3, 1, 'Thank you! This looks amazing.', 'TEXT', FALSE),
-(4, 1, 'Hey admin, could you help me with something?', 'TEXT', FALSE);
-
--- ===================================================
 -- Create Views for Common Queries
 -- ===================================================
 
