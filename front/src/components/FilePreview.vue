@@ -42,8 +42,7 @@
   const previewType = ref('')
   const previewUrl = ref('')
   const textContent = ref('')
-  
-  onMounted(async () => {
+    onMounted(async () => {
     // 1. 验证 fileId
     if (!fileId || isNaN(fileId)) {
       errorMsg.value = '文件 ID 无效，请返回列表后重新选择'
@@ -66,10 +65,13 @@
         headers: { Authorization: `Bearer ${token}` },
         params: { fileId }
       })
-      console.log(response)
+      
+      console.log('Response:', response)
+      
       // 4. 检查 content-type
       const contentType = response.headers['content-type'] || ''
-      console.log(contentType)
+      console.log('Content-Type:', contentType)
+      
       // 若后端以 JSON/HTML 返回错误页面，则抛出异常
       if (
         contentType.startsWith('application/json') ||
@@ -95,7 +97,27 @@
       loading.value = false
     } catch (err) {
       console.error('文件预览出错：', err)
-      errorMsg.value = err.message || '无法加载该文件，请稍后重试'
+      
+      let errorMessage = '无法加载该文件，请稍后重试'
+      
+      if (err.response) {
+        if (err.response.data instanceof Blob) {
+          // If the error response is also a blob, try to read it as text
+          try {
+            const errorText = await err.response.data.text();
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.msg || errorJson.message || errorText;
+          } catch {
+            errorMessage = '服务器返回了错误的响应格式';
+          }
+        } else {
+          errorMessage = err.response.data?.msg || err.response.data?.message || err.message;
+        }
+      } else {
+        errorMessage = err.message;
+      }
+      
+      errorMsg.value = errorMessage
       loading.value = false
     }
   })

@@ -343,16 +343,14 @@ async function download(fileId) {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     });
 
-    // 提取文件名
-    // 应该用小写：
-    const disposition = response.headers['content_disposition'];
-    // console.log(res)
-    console.log(disposition);
+    // 提取文件名 - 使用正确的header名称
+    const disposition = response.headers['content-disposition'];
+    console.log('Content-Disposition:', disposition);
 
     let filename = `file-${fileId}`;
     if (disposition) {
-      const match = disposition.match(/filename="?(.+)"?/);
-      if (match) filename = match[1];
+      const match = disposition.match(/filename[*]?=(?:UTF-8'')?["]?([^";]+)["]?/);
+      if (match) filename = decodeURIComponent(match[1]);
     }
 
     // 创建下载
@@ -367,7 +365,26 @@ async function download(fileId) {
 
   } catch (err) {
     console.error('下载失败', err);
-    alert('下载失败：' + (err.response?.data || err.message));
+    let errorMessage = '下载失败';
+    
+    if (err.response) {
+      if (err.response.data instanceof Blob) {
+        // If the error response is also a blob, try to read it as text
+        try {
+          const errorText = await err.response.data.text();
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.msg || errorJson.message || errorText;
+        } catch {
+          errorMessage = '下载失败：服务器返回了错误';
+        }
+      } else {
+        errorMessage = err.response.data?.msg || err.response.data?.message || err.message;
+      }
+    } else {
+      errorMessage = err.message;
+    }
+    
+    alert(errorMessage);
   }
 }
 

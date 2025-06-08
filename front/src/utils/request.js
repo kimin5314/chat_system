@@ -11,7 +11,10 @@ const request = axios.create({
 
 // 请求拦截器
 request.interceptors.request.use(config => {
-        config.headers['Content-Type'] = 'application/json;charset=utf-8';
+        // Only set Content-Type for non-blob requests
+        if (config.responseType !== 'blob') {
+            config.headers['Content-Type'] = 'application/json;charset=utf-8';
+        }
         return config;
     },
     error => {
@@ -23,6 +26,11 @@ request.interceptors.request.use(config => {
 // 响应拦截器
 request.interceptors.response.use(
     response => {
+        // Skip response code check for blob responses (file downloads/previews)
+        if (response.config.responseType === 'blob') {
+            return response;
+        }
+        
         const res = response.data;
         
         // 根据实际业务需求判断响应状态
