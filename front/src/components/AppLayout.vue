@@ -119,12 +119,10 @@ onMounted(async () => {
       }
 
       // Initialize E2EE system if user is logged in
-      console.log('🔑 Initializing E2EE system on app startup...')
       try {
         await e2eeStore.initialize()
-        console.log('✅ E2EE system initialized on app startup')
       } catch (error) {
-        console.warn('⚠️ E2EE initialization failed (non-critical):', error)
+        console.warn('E2EE initialization failed (non-critical):', error)
       }
     } catch (error) {
       console.error('Failed to initialize chat system:', error)
