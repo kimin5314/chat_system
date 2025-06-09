@@ -110,12 +110,6 @@ class E2EEManager {
      * @returns {Promise<{encryptedMessage: string, encryptedAESKey: string, iv: string}>}
      */
     async encryptMessage(message, receiverId) {
-        console.log('🔒 ENCRYPTION DEBUG START:', {
-            messageLength: message.length,
-            receiverId,
-            hasContactKey: this.contactPublicKeys.has(receiverId),
-            messagePreview: message.substring(0, 50) + (message.length > 50 ? '...' : '')
-        })
 
         try {
             const receiverPublicKey = this.contactPublicKeys.get(receiverId)
@@ -157,25 +151,8 @@ class E2EEManager {
                 encryptedAESKey: this.arrayBufferToBase64(encryptedAESKey),
                 iv: this.arrayBufferToBase64(iv)
             }
-
-            console.log('🎉 ENCRYPTION SUCCESS:', {
-                encryptedMessageLength: result.encryptedMessage.length,
-                encryptedAESKeyLength: result.encryptedAESKey.length,
-                ivLength: result.iv.length,
-                encryptedMessagePreview: result.encryptedMessage.substring(0, 50) + '...',
-                encryptedAESKeyPreview: result.encryptedAESKey.substring(0, 50) + '...',
-                iv: result.iv
-            })
-
             return result
         } catch (error) {
-            console.error('❌ ENCRYPTION FAILED:', {
-                error: error.message,
-                stack: error.stack,
-                receiverId,
-                hasContactKey: this.contactPublicKeys.has(receiverId),
-                messageLength: message.length
-            })
             throw new Error(`消息加密失败: ${error.message}`)
         }
     }
@@ -188,15 +165,6 @@ class E2EEManager {
      * @returns {Promise<string>} - Decrypted plain text
      */
     async decryptMessage(encryptedMessage, encryptedAESKey, iv) {
-        console.log('🔓 DECRYPTION DEBUG START:', {
-            hasPrivateKey: !!this.privateKey,
-            encryptedMessageLength: encryptedMessage?.length,
-            encryptedAESKeyLength: encryptedAESKey?.length,
-            ivLength: iv?.length,
-            encryptedMessage: encryptedMessage?.substring(0, 50) + '...',
-            encryptedAESKey: encryptedAESKey?.substring(0, 50) + '...',
-            iv: iv
-        })
 
         try {
             if (!this.privateKey) {
@@ -204,11 +172,6 @@ class E2EEManager {
             }
 
             if (!encryptedMessage || !encryptedAESKey || !iv) {
-                console.error('❌ Missing decryption parameters:', {
-                    hasEncryptedMessage: !!encryptedMessage,
-                    hasEncryptedAESKey: !!encryptedAESKey,
-                    hasIV: !!iv
-                })
                 throw new Error('缺少解密参数')
             }
 
@@ -235,11 +198,6 @@ class E2EEManager {
             // Decrypt the message with AES-GCM
             const encryptedMessageBuffer = this.base64ToArrayBuffer(encryptedMessage)
             const ivBuffer = this.base64ToArrayBuffer(iv)
-            
-            console.log('🔓 Message decryption parameters:', {
-                encryptedMessageBufferSize: encryptedMessageBuffer.byteLength,
-                ivBufferSize: ivBuffer.byteLength
-            })
 
             const decryptedMessageBuffer = await crypto.subtle.decrypt(
                 {
@@ -252,25 +210,9 @@ class E2EEManager {
 
             // Convert decrypted buffer back to string
             const decryptedMessage = new TextDecoder().decode(decryptedMessageBuffer)
-            console.log('🎉 DECRYPTION SUCCESS:', {
-                originalLength: encryptedMessage.length,
-                decryptedLength: decryptedMessage.length,
-                decryptedPreview: decryptedMessage.substring(0, 50) + (decryptedMessage.length > 50 ? '...' : '')
-            })
             
             return decryptedMessage
         } catch (error) {
-            console.error('❌ DECRYPTION FAILED:', {
-                error: error.message,
-                stack: error.stack,
-                errorName: error.name,
-                hasPrivateKey: !!this.privateKey,
-                parameters: {
-                    encryptedMessage: encryptedMessage?.substring(0, 50),
-                    encryptedAESKey: encryptedAESKey?.substring(0, 50),
-                    iv: iv
-                }
-            })
             throw new Error(`消息解密失败: ${error.message}`)
         }
     }
@@ -283,13 +225,6 @@ class E2EEManager {
         try {
             const privateKeyData = localStorage.getItem('e2ee_private_key')
             const publicKeyData = localStorage.getItem('e2ee_public_key')
-
-            console.log('🔑 Storage data check:', {
-                hasPrivateKeyData: !!privateKeyData,
-                hasPublicKeyData: !!publicKeyData,
-                privateKeyLength: privateKeyData?.length,
-                publicKeyLength: publicKeyData?.length
-            })
 
             if (privateKeyData && publicKeyData) {
                 // Import private key
@@ -318,17 +253,10 @@ class E2EEManager {
                     ['encrypt']
                 )
 
-                console.log('🔑 Final key status:', {
-                    privateKeyExists: !!this.privateKey,
-                    publicKeyExists: !!this.publicKey,
-                    isAvailable: this.isAvailable()
-                })
                 return true
             }
-            console.log('❌ No key data found in storage')
             return false
         } catch (error) {
-            console.error('❌ Failed to load keys from storage:', error)
             return false
         }
     }
@@ -397,13 +325,6 @@ class E2EEManager {
      */
     isAvailable() {
         const available = !!(this.privateKey && this.publicKey)
-        console.log('🔍 E2EE isAvailable() check:', {
-            available,
-            hasPrivateKey: !!this.privateKey,
-            hasPublicKey: !!this.publicKey,
-            privateKeyType: this.privateKey?.constructor?.name,
-            publicKeyType: this.publicKey?.constructor?.name
-        })
         return available
     }
 
