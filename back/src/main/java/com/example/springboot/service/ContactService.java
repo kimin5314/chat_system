@@ -26,9 +26,7 @@ public class ContactService {
         if (fromUserId.equals(toUserId)) {
             throw new RuntimeException("不能添加自己为好友");
         }
-        System.out.println("fromUserId = " + fromUserId + ", toUserId = " + toUserId);
         Optional<Contacts> existingOpt = contactsRepository.findByUserIdAndContactId(fromUserId, toUserId);
-        System.out.println("existing = " + existingOpt);
 
         if (existingOpt.isPresent()) {
             Contacts existing = existingOpt.get();

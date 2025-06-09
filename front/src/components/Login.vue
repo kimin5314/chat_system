@@ -35,8 +35,10 @@ import { useRouter } from 'vue-router';
 import request from '@/utils/request';
 import { ElMessage } from 'element-plus';
 import Cookies from 'js-cookie';
+import { useE2EEStore } from '@/store/e2ee';
 
 const router = useRouter();
+const e2eeStore = useE2EEStore();
 const username = ref('');
 const password = ref('');
 
@@ -50,8 +52,7 @@ const login = async () => {
   if (!password.value) {
     ElMessage.error('密码不能为空');
     return;
-  }
-  try {
+  }  try {
     const response = await request.post('/user/login', {
       username: username.value,
       password: password.value
@@ -61,22 +62,58 @@ const login = async () => {
       // 直接设置cookie
       Cookies.set('token', res.data.token, { expires: 7 });
       Cookies.set('userId', res.data.userId || username.value, { expires: 7 });
-      
-      ElMessage.success('登录成功');
+        ElMessage.success('登录成功');
 
       // 初始化 WebSocket 连接
       initWebSocket(res.data.token);
 
+      // Initialize E2EE system after login to ensure keys are properly loaded
+      try {
+        console.log('🔑 Reinitializing E2EE after login...');
+        await e2eeStore.reinitialize();
+        console.log('✅ E2EE reinitialized successfully after login');
+      } catch (error) {
+        console.warn('⚠️ E2EE reinitialization failed (non-critical):', error);
+      }
+
       await router.push('/app');
     } else {
-      ElMessage.error(res.msg || '登录失败，请检查用户名或密码');
+      // 处理业务逻辑错误
+      if (res.code === "400") {
+        ElMessage.error('用户名或密码错误');
+      } else if (res.code === "404") {
+        ElMessage.error('用户不存在');
+      } else if (res.code === "403") {
+        ElMessage.error('账户已被禁用');
+      } else {
+        ElMessage.error(res.msg || res.message || '登录失败，请检查用户名或密码');
+      }
     }
   } catch (error) {
-    if (error.response && error.response.data) {
-      ElMessage.error(`登录失败，错误码：${error.response.status}，错误信息：${error.response.data.message}`);
+    console.error('登录错误:', error);
+    
+    if (error.response) {
+      // 服务器返回了错误状态码
+      const status = error.response.status;
+      const errorData = error.response.data;
+      
+      if (status === 400) {
+        ElMessage.error(errorData.message || '用户名或密码错误');
+      } else if (status === 401) {
+        ElMessage.error('认证失败，请检查用户名和密码');
+      } else if (status === 404) {
+        ElMessage.error('用户不存在');
+      } else if (status === 500) {
+        ElMessage.error('服务器内部错误，请稍后重试');
+      } else {
+        ElMessage.error(`登录失败 (${status}): ${errorData.message || errorData.msg || '未知错误'}`);
+      }
+    } else if (error.request) {
+      // 请求已发出但没有收到响应
+      ElMessage.error('网络连接失败，请检查网络连接后重试');
     } else {
-      console.error('网络错误', error);
-      ElMessage.error('网络错误，请检查网络连接');
+      // 其他错误
+      ElMessage.error('登录失败: ' + (error.message || '未知错误'));
     }
   }
 };

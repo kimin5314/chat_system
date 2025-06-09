@@ -62,7 +62,6 @@ public class ContactController {
         String token = tokenHeader.replace("Bearer ", "");
         String username = JwtUtil.getUsernameFromToken(token);
         User user = userService.getUserInformation(username);
-        System.out.println(user.getId());
         List<FriendRequestDto> requests = contactService.getPendingRequests(user.getId());
         return Result.success(requests);
     }

@@ -62,9 +62,7 @@ public class ChunkUploadController {
             @RequestParam int chunkIndex,
             @RequestParam MultipartFile chunk) throws IOException {
         if (!isValidToken(authHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        extractUserIdFromToken(authHeader);
-//        System.out.println("chunk");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");        extractUserIdFromToken(authHeader);
 
         chunkService.saveChunk(fileId, chunkIndex, chunk.getInputStream());
         return ResponseEntity.ok("Chunk saved");
@@ -99,51 +97,12 @@ public class ChunkUploadController {
         Integer userId = extractUserIdFromToken(authHeader);
         try {
             fileStorage stored = fileService.uploadFile(userId, file, file_name, file_type, file_size);
-            return ResponseEntity.ok(stored);
-        } catch (IOException e) {
+            return ResponseEntity.ok(stored);        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Upload failed");
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//import com.example.springboot.entity.User;
-//import com.example.springboot.service.UserService;
 //import com.example.springboot.utils.JwtUtil;
 //import com.example.springboot.service.FileService;
 //import com.example.springboot.entity.fileStorage;

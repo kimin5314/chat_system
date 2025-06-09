@@ -6,38 +6,71 @@
         @keyup.enter="fetchFiles"
         placeholder="搜索文件"
         class="search-input"
-      />
+      />    </div>    <!-- Desktop Table View -->
+    <div class="table-container desktop-view">
+      <div class="table-wrapper">
+        <table class="file-table">
+          <thead>
+            <tr>
+              <th @click="sortBy('fileName')" class="filename-col">文件名</th>
+              <th @click="sortBy('fileType')" class="type-col">类型</th>
+              <th @click="sortBy('fileSize')" class="size-col">大小</th>
+              <th @click="sortBy('uploadedAt')" class="date-col">上传时间</th>
+              <th class="actions-col">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="file in pagedFiles" :key="file.id">
+              <td class="filename-cell" :title="file.fileName">
+                <span class="filename-text">{{ file.fileName }}</span>
+              </td>
+              <td class="type-cell">{{ file.fileType }}</td>
+              <td class="size-cell">{{ formatSize(file.fileSize) }}</td>
+              <td class="date-cell">{{ formatDate(file.uploadedAt) }}</td>
+              <td class="actions">
+                <button @click="download(file.id)" class="btn-download">下载</button>
+                <button @click="previewFile(file.id)" class="btn-preview">预览</button>
+                <button @click="remove(file.id)" class="btn-delete">删除</button>
+                <button @click="share(file.id)" class="btn-share">分享</button>
+              </td>
+            </tr>
+            <tr v-if="!filteredFiles.length">
+              <td colspan="5" class="no-data">暂无文件</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-
-<table class="file-table">
-  <thead>
-    <tr>
-      <th @click="sortBy('fileName')">文件名</th>
-      <th @click="sortBy('fileType')">类型</th>
-      <th @click="sortBy('fileSize')">大小</th>
-      <th @click="sortBy('uploadedAt')">上传时间</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="file in pagedFiles" :key="file.id">
-      <td>{{ file.fileName }}</td>
-      <td>{{ file.fileType }}</td>
-      <td>{{ formatSize(file.fileSize) }}</td>
-      <td>{{ formatDate(file.uploadedAt) }}</td>
-      <td class="actions">
-        <button @click="download(file.id)">下载</button>
-        <button @click="previewFile(file.id)">预览</button>
-        <button @click="remove(file.id)">删除</button>
-        <button @click="share(file.id)">分享</button>
-      </td>
-    </tr>
-    <tr v-if="!filteredFiles.length">
-      <td colspan="5" class="no-data">暂无文件</td>
-    </tr>
-  </tbody>
-</table>
+    <!-- Mobile Card View -->
+    <div class="mobile-view">
+      <div v-for="file in pagedFiles" :key="file.id" class="file-card">
+        <div class="file-card-header">
+          <h3 class="file-name">{{ file.fileName }}</h3>
+          <span class="file-type-badge">{{ file.fileType }}</span>
+        </div>
+        <div class="file-card-details">
+          <div class="file-detail">
+            <span class="detail-label">大小:</span>
+            <span class="detail-value">{{ formatSize(file.fileSize) }}</span>
+          </div>
+          <div class="file-detail">
+            <span class="detail-label">上传时间:</span>
+            <span class="detail-value">{{ formatDate(file.uploadedAt) }}</span>
+          </div>
+        </div>
+        <div class="file-card-actions">
+          <button @click="download(file.id)" class="action-btn download-btn">下载</button>
+          <button @click="previewFile(file.id)" class="action-btn preview-btn">预览</button>
+          <button @click="remove(file.id)" class="action-btn delete-btn">删除</button>
+          <button @click="share(file.id)" class="action-btn share-btn">分享</button>
+        </div>
+      </div>
+      <div v-if="!filteredFiles.length" class="no-data-mobile">
+        <div class="no-data-icon">📁</div>
+        <p>暂无文件</p>
+      </div>
+    </div>
 
 <div class="footer">
   <span>共 {{ files.length }} 个文件</span>
@@ -550,15 +583,33 @@ function handleUploadError(error) {
   box-shadow: 0 0 0 2px var(--primary-color-alpha);
 }
 
+/* Table container with responsive wrapper */
+.table-container {
+  margin-bottom: var(--spacing-xl);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-light);
+  max-width: 100%;
+}
+
 .file-table {
   width: 100%;
+  min-width: 800px; /* Ensures table doesn't get too cramped */
   border-collapse: collapse;
-  margin-bottom: var(--spacing-xl);
   background: var(--bg-primary);
-  border-radius: var(--border-radius-small);
-  overflow: hidden;
-  box-shadow: var(--shadow-light);
+  table-layout: fixed; /* Fixed layout for better control */
 }
+
+/* Column width distribution */
+.filename-col { width: 30%; }
+.type-col { width: 15%; }
+.size-col { width: 15%; }
+.date-col { width: 20%; }
+.actions-col { width: 20%; }
 
 .file-table th,
 .file-table td {
@@ -596,13 +647,44 @@ function handleUploadError(error) {
   color: var(--text-primary);
 }
 
+/* Specific cell styling for better responsive behavior */
+.filename-cell {
+  overflow: hidden;
+  position: relative;
+}
+
+.filename-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.type-cell,
+.size-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.date-cell {
+  white-space: nowrap;
+  font-size: var(--font-xs);
+}
+
 .actions {
   display: flex;
   gap: var(--spacing-xs);
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.actions button {
+.actions button,
+.btn-download,
+.btn-preview,
+.btn-delete,
+.btn-share {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: none;
   border-radius: var(--border-radius-small);
@@ -610,55 +692,64 @@ function handleUploadError(error) {
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 60px;
+  min-width: 50px;
+  white-space: nowrap;
 }
 
-.actions button:nth-child(1) {
+.actions button:nth-child(1),
+.btn-download {
   background: var(--success-color);
   color: white;
   border: 1px solid var(--success-color);
 }
 
-.actions button:nth-child(1):hover {
+.actions button:nth-child(1):hover,
+.btn-download:hover {
   background: var(--success-hover);
   border-color: var(--success-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
-.actions button:nth-child(2) {
+.actions button:nth-child(2),
+.btn-preview {
   background: var(--info-color);
   color: white;
   border: 1px solid var(--info-color);
 }
 
-.actions button:nth-child(2):hover {
+.actions button:nth-child(2):hover,
+.btn-preview:hover {
   background: var(--info-hover);
   border-color: var(--info-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
 }
 
-.actions button:nth-child(3) {
+.actions button:nth-child(3),
+.btn-delete {
   background: var(--danger-color);
   color: white;
   border: 1px solid var(--danger-color);
 }
 
-.actions button:nth-child(3):hover {
+.actions button:nth-child(3):hover,
+.btn-delete:hover {
   background: var(--danger-hover);
   border-color: var(--danger-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
-.actions button:nth-child(4) {
+.actions button:nth-child(4),
+.btn-share {
   background: var(--primary-gradient);
   color: white;
   border: 1px solid var(--primary-color);
 }
 
-.actions button:nth-child(4):hover {
+.actions button:nth-child(4):hover,
+.btn-share:hover {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
   transform: translateY(-1px);
@@ -877,7 +968,183 @@ function handleUploadError(error) {
   }
 }
 
+/* Responsive Layout Controls */
+.desktop-view {
+  display: block;
+}
+
+.mobile-view {
+  display: none;
+}
+
+/* Mobile Card Styles */
+.file-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.file-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-small);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.file-card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-1px);
+  border-color: var(--primary-color);
+}
+
+.file-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-sm);
+}
+
+.file-name {
+  font-size: var(--font-md);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  word-break: break-word;
+  flex: 1;
+}
+
+.file-type-badge {
+  background: var(--primary-gradient);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-xs);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.file-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+.file-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  min-width: 60px;
+}
+
+.detail-value {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  text-align: right;
+}
+
+.file-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.action-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.download-btn {
+  background: var(--success-color);
+  color: white;
+}
+
+.download-btn:hover {
+  background: var(--success-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.preview-btn {
+  background: var(--info-color);
+  color: white;
+}
+
+.preview-btn:hover {
+  background: var(--info-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+}
+
+.delete-btn {
+  background: var(--danger-color);
+  color: white;
+}
+
+.delete-btn:hover {
+  background: var(--danger-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.share-btn {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+.share-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.no-data-mobile {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--spacing-2xl);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-small);
+}
+
+.no-data-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+.no-data-mobile p {
+  margin: 0;
+  font-style: italic;
+  font-size: var(--font-md);
+}
+
 @media (max-width: 768px) {
+  /* Hide desktop view and show mobile view */
+  .desktop-view {
+    display: none;
+  }
+  
+  .mobile-view {
+    display: block;
+  }
+  
   .file-manager {
     margin: var(--spacing-md);
     padding: var(--spacing-lg);
@@ -886,23 +1153,6 @@ function handleUploadError(error) {
   .header {
     flex-direction: column;
     align-items: stretch;
-  }
-  
-  .file-table {
-    font-size: var(--font-xs);
-  }
-  
-  .file-table th,
-  .file-table td {
-    padding: var(--spacing-sm);
-  }
-  
-  .actions {
-    flex-direction: column;
-  }
-  
-  .actions button {
-    width: 100%;
   }
   
   .footer {
@@ -914,6 +1164,110 @@ function handleUploadError(error) {
   .pagination {
     justify-content: center;
     flex-wrap: wrap;
+  }
+  
+  /* Optimize mobile card layout for smaller screens */
+  .file-card {
+    padding: var(--spacing-md);
+  }
+  
+  .file-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  .file-type-badge {
+    align-self: flex-start;
+  }
+  
+  .file-card-actions {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Enhanced responsive handling for narrow desktop screens (e.g., with dev tools open) */
+@media (max-width: 1200px) and (min-width: 769px) {
+  .file-table {
+    min-width: 700px; /* Reduce minimum width for medium screens */
+  }
+  
+  .filename-col { width: 35%; }
+  .type-col { width: 12%; }
+  .size-col { width: 13%; }
+  .date-col { width: 18%; }
+  .actions-col { width: 22%; }
+  
+  .actions {
+    gap: 2px;
+  }
+  
+  .actions button,
+  .btn-download,
+  .btn-preview,
+  .btn-delete,
+  .btn-share {
+    min-width: 45px;
+    padding: var(--spacing-xs) 4px;
+    font-size: 11px;
+  }
+  
+  .date-cell {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 1000px) and (min-width: 769px) {
+  .file-table {
+    min-width: 650px;
+  }
+  
+  /* Stack action buttons vertically on very narrow desktop screens */
+  .actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .actions button,
+  .btn-download,
+  .btn-preview,
+  .btn-delete,
+  .btn-share {
+    min-width: 100%;
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+  
+  .filename-col { width: 40%; }
+  .type-col { width: 15%; }
+  .size-col { width: 15%; }
+  .date-col { width: 20%; }
+  .actions-col { width: 10%; }
+}
+
+@media (max-width: 480px) {
+  .file-manager {
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+  
+  .file-card {
+    padding: var(--spacing-sm);
+  }
+  
+  .file-name {
+    font-size: var(--font-sm);
+  }
+  
+  .detail-label,
+  .detail-value {
+    font-size: var(--font-xs);
+  }
+  
+  .action-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-xs);
   }
 }
 </style>

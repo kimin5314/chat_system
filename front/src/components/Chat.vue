@@ -81,6 +81,21 @@
               </span>
             </div>
           </div>
+          <div class="chat-controls">
+            <div class="e2ee-toggle">
+              <el-tooltip :content="e2eeTooltip" placement="top">
+                <div class="e2ee-status" :class="{ 
+                  'enabled': isE2EEEnabled, 
+                  'disabled': !e2eeStore.isEnabled,
+                  'no-keys': !e2eeStore.hasKeys 
+                }" @click="toggleE2EE">
+                  <el-icon v-if="!e2eeStore.isEnabled || !e2eeStore.hasKeys"><Warning /></el-icon>
+                  <el-icon v-else-if="isE2EEEnabled"><Lock /></el-icon>
+                  <el-icon v-else><Unlock /></el-icon>
+                </div>
+              </el-tooltip>
+            </div>
+          </div>
         </div>
 
         <!-- Messages area -->
@@ -88,8 +103,19 @@
           <div v-for="message in messages" :key="message.id" class="message">
             <div class="message-wrapper" :class="{ 'own': message.senderId === currentUserId }">
               <div class="message-content">
-                <div class="message-text">{{ message.content }}</div>
+                <div class="message-text" :class="{ 'encrypted': message.isEncrypted || message.isDecrypted, 'decryption-error': message.isDecryptionError }">
+                  {{ message.content }}
+                  <div v-if="message.isDecryptionError" class="decryption-error-hint">
+                    <el-icon><Warning /></el-icon>
+                    <span>解密失败</span>
+                  </div>
+                </div>
                 <div class="message-meta">
+                  <div class="message-encryption-status" v-if="message.isEncrypted || message.isDecrypted">
+                    <el-icon v-if="message.isDecrypted" class="encrypted-icon"><Lock /></el-icon>
+                    <el-icon v-else-if="message.isEncrypted" class="encrypted-icon"><Lock /></el-icon>
+                    <span class="encryption-text">{{ message.isDecrypted ? '已解密' : '已加密' }}</span>
+                  </div>
                   <div class="message-time">{{ formatTime(message.createdAt) }}</div>
                 </div>
               </div>
@@ -140,14 +166,16 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { useFriendStore } from '@/store/friend'
+import { useE2EEStore } from '@/store/e2ee'
 import { ElMessage } from 'element-plus'
-import { Menu } from '@element-plus/icons-vue'
+import { Menu, Lock, Unlock, Warning } from '@element-plus/icons-vue'
 import Cookies from 'js-cookie'
 
 const route = useRoute()
 const router = useRouter()
 const chatStore = useChatStore()
 const friendStore = useFriendStore()
+const e2eeStore = useE2EEStore()
 
 // Reactive references
 const newMessage = ref('')
@@ -175,6 +203,19 @@ const currentUserId = computed(() => {
   return parseInt(sessionStorage.getItem('userId') || Cookies.get('userId'))
 })
 
+// E2EE computed properties
+const isE2EEEnabled = computed(() => {
+  if (!currentConversation.value) return false
+  return e2eeStore.isE2EEEnabledWith(currentConversation.value.friendId)
+})
+
+const e2eeTooltip = computed(() => {
+  if (!e2eeStore.isEnabled) return '需要先在设置中启用端到端加密'
+  if (!e2eeStore.hasKeys) return '需要生成加密密钥'
+  if (isE2EEEnabled.value) return '端到端加密已启用，点击关闭'
+  return '点击启用端到端加密'
+})
+
 // Helper function to construct avatar URL
 const getAvatarUrl = (avatarPath) => {
   if (!avatarPath) return 'https://avatars.githubusercontent.com/u/583231?v=4'
@@ -196,6 +237,9 @@ onMounted(async () => {
   try {
     // Initialize chat store (connects WebSocket and loads conversations)
     await chatStore.initialize()
+    
+    // Initialize E2EE store
+    await e2eeStore.initialize()
     
     // If there's a friendId in route params, start conversation with that friend
     const friendId = route.params.friendId || route.query.friendId
@@ -356,6 +400,37 @@ function handleTyping() {
 function scrollToBottom() {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  }
+}
+
+// Handle E2EE toggle
+async function toggleE2EE() {
+  if (!currentConversation.value) return
+  
+  // Check if E2EE is enabled globally first
+  if (!e2eeStore.isEnabled) {
+    ElMessage.warning('请先在个人设置中启用端到端加密功能')
+    router.push('/app/person')
+    return
+  }
+  
+  if (!e2eeStore.hasKeys) {
+    ElMessage.warning('请先在设置中生成加密密钥')
+    router.push('/app/person')
+    return
+  }
+  
+  const enabled = !isE2EEEnabled.value
+  try {
+    const success = await e2eeStore.setE2EEEnabled(currentConversation.value.friendId, enabled)
+    if (success) {
+      ElMessage.success(enabled ? '端到端加密已启用' : '端到端加密已关闭')
+    } else {
+      ElMessage.error('操作失败，请重试')
+    }
+  } catch (err) {
+    console.error('Failed to toggle E2EE:', err)
+    ElMessage.error('操作失败: ' + err.message)
   }
 }
 
@@ -707,6 +782,56 @@ defineExpose({
   z-index: 10;
 }
 
+.chat-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.e2ee-toggle {
+  position: relative;
+}
+
+.e2ee-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.e2ee-status .el-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--el-color-info-light-9);
+  border: 2px solid var(--el-color-info-light-7);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--el-color-info);
+}
+
+.e2ee-status .el-icon:hover {
+  background: var(--el-color-info-light-8);
+  border-color: var(--el-color-info-light-5);
+}
+
+.e2ee-status.enabled .el-icon {
+  background: var(--el-color-success-light-9);
+  border-color: var(--el-color-success);
+  color: var(--el-color-success);
+}
+
+.e2ee-status.disabled .el-icon,
+.e2ee-status.no-keys .el-icon {
+  background: var(--el-color-warning-light-9);
+  border-color: var(--el-color-warning-light-7);
+  color: var(--el-color-warning);
+}
+
 .friend-info {
   display: flex;
   align-items: center;
@@ -790,6 +915,43 @@ defineExpose({
   word-break: break-word;
   line-height: 1.5;
   font-size: var(--font-sm);
+}
+
+.message-text.encrypted {
+  border-left: 3px solid var(--success-color);
+  padding-left: var(--spacing-sm);
+}
+
+.message-text.decryption-error {
+  border-left: 3px solid var(--danger-color);
+  padding-left: var(--spacing-sm);
+  background: var(--danger-color-alpha);
+}
+
+.decryption-error-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-xs);
+  color: var(--danger-color);
+}
+
+.message-encryption-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-xs);
+  color: var(--success-color);
+}
+
+.encrypted-icon {
+  font-size: 12px;
+  color: var(--success-color);
+}
+
+.encryption-text {
+  color: var(--success-color);
 }
 
 .message-time {

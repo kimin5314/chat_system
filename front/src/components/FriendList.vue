@@ -311,21 +311,17 @@ const deleteFriend = async (friendId) => {
 
 // 接受好友请求
 const acceptRequest = async (index) => {
-  const request = friendRequests.value[index]
+  const friendRequest = friendRequests.value[index]
   try {
-    console.log('接受好友请求:', request)
     const res = await request.post('/contacts/requests/accept', {
-      fromUserId: request.userId
+      fromUserId: friendRequest.userId
     }, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
-    console.log('接受好友请求响应:', res.data)
     if (res.data.code === "200") {
       ElMessage.success('已添加好友')
-      friendStore.removeFriendRequest(request.id)
-      console.log('准备刷新好友列表')
+      friendStore.removeFriendRequest(friendRequest.id)
       await getFriendsList()  // 使用 await 确保获取完成
-      console.log('好友列表刷新完成')
     } else {
       throw new Error(res.data.message || '处理失败')
     }
@@ -337,15 +333,15 @@ const acceptRequest = async (index) => {
 
 // 拒绝好友请求
 const rejectRequest = async (index) => {
-  const request = friendRequests.value[index]
+  const friendRequest = friendRequests.value[index]
   try {
     const res = await request.post('/contacts/requests/reject', {
-      fromUserId: request.userId
+      fromUserId: friendRequest.userId
     }, {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     })
     if (res.data.code === 200) {
-      friendStore.removeFriendRequest(request.id)
+      friendStore.removeFriendRequest(friendRequest.id)
       ElMessage.info('已拒绝好友请求')
     } else {
       throw new Error(res.data.message)

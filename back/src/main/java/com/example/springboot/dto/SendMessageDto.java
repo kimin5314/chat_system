@@ -1,15 +1,16 @@
 package com.example.springboot.dto;
 
 import com.example.springboot.entity.Message;
+import com.example.springboot.Enum.MessageType;
 
 public class SendMessageDto {
     private Integer receiverId;
     private String content;
-    private Message.MessageType messageType = Message.MessageType.TEXT;
+    private MessageType messageType = MessageType.TEXT;
 
     public SendMessageDto() {}
 
-    public SendMessageDto(Integer receiverId, String content, Message.MessageType messageType) {
+    public SendMessageDto(Integer receiverId, String content, MessageType messageType) {
         this.receiverId = receiverId;
         this.content = content;
         this.messageType = messageType;
@@ -31,11 +32,11 @@ public class SendMessageDto {
         this.content = content;
     }
 
-    public Message.MessageType getMessageType() {
+    public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(Message.MessageType messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
 }

@@ -15,13 +15,11 @@ class ChatWebSocketService {
     connect(token) {
         // If we already have an open connection, return it
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            console.log('Chat WebSocket already connected')
             return Promise.resolve()
         }
         
         // If we have a pending connection, close it
         if (this.ws) {
-            console.log('Closing pending WebSocket connection')
             this.ws.close()
             this.ws = null
         }
@@ -29,7 +27,6 @@ class ChatWebSocketService {
         return new Promise((resolve, reject) => {
             try {
                 const wsUrl = `${import.meta.env.VITE_WS_BASE}/chat?token=${token}`
-                console.log('Connecting to Chat WebSocket:', wsUrl)
                 
                 this.ws = new WebSocket(wsUrl)
                 let connectTimeout = setTimeout(() => {
@@ -41,7 +38,6 @@ class ChatWebSocketService {
                 }, 10000) // 10 second timeout
 
                 this.ws.onopen = () => {
-                    console.log('Chat WebSocket connected successfully')
                     clearTimeout(connectTimeout)
                     this.reconnectAttempts = 0
                     this.startHeartbeat()
@@ -51,17 +47,13 @@ class ChatWebSocketService {
 
                 this.ws.onclose = (event) => {
                     clearTimeout(connectTimeout)
-                    console.log('Chat WebSocket disconnected:', event.code, event.reason || 'No reason provided')
                     this.stopHeartbeat()
                     this.notifyConnectionListeners(false)
                     
                     // Only reconnect for unexpected closures
                     const isNormalClosure = event.code === 1000 || event.code === 1001;
                     if (!isNormalClosure && this.reconnectAttempts < this.maxReconnectAttempts) {
-                        console.log(`Scheduling reconnect attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`)
                         this.scheduleReconnect(token)
-                    } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-                        console.log('Maximum reconnect attempts reached')
                     }
                 }
 
@@ -112,8 +104,6 @@ class ChatWebSocketService {
         try {
             const message = JSON.parse(messageData)
             const { type, data } = message
-
-            console.log('Received WebSocket message:', { type, data })
 
             // Call registered handlers for this message type
             const handlers = this.messageHandlers.get(type) || []
@@ -188,20 +178,14 @@ class ChatWebSocketService {
         // Calculate delay with exponential backoff, capped at 30 seconds
         const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000)
         
-        console.log(`Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`)
-        
         setTimeout(() => {
             if (this.reconnectAttempts <= this.maxReconnectAttempts) {
-                console.log(`Attempting reconnect ${this.reconnectAttempts}/${this.maxReconnectAttempts}`)
-                
                 // Get fresh token from storage for reconnection
                 const freshToken = sessionStorage.getItem('chatToken') || originalToken
                 
                 this.connect(freshToken).catch(error => {
                     console.error('Reconnect attempt failed:', error.message || 'Unknown error')
                 })
-            } else {
-                console.log('Maximum reconnect attempts reached, giving up')
             }
         }, delay)
     }
@@ -229,14 +213,6 @@ class ChatWebSocketService {
                 // Send ping
                 try {
                     this.ws.send('ping');
-                    console.log('Heartbeat ping sent');
-                    
-                    // Set a timeout to listen for pong
-                    setTimeout(() => {
-                        if (!pongReceived) {
-                            console.warn('No pong received within timeout');
-                        }
-                    }, 5000); // Wait 5 seconds for pong
                 } catch (e) {
                     console.error('Failed to send heartbeat:', e);
                 }

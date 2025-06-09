@@ -14,18 +14,21 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private String password;
+    private String password;    @Column(name = "display_name", length = 100)
+    private String displayName;
 
-    @Column(name = "display_name", length = 100)
-    private String displayName;    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
     private String avatarUrl;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "public_key", columnDefinition = "TEXT")
+    private String publicKey;    @Column(name = "e2ee_enabled", nullable = false)
+    private Boolean e2eeEnabled = false;
 
-    // Default constructor
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;    // Default constructor
     public User() {
         this.createdAt = LocalDateTime.now();
+        this.e2eeEnabled = false; // Ensure default value
     }
 
     // Getters and setters
@@ -61,10 +64,24 @@ public class User {
         this.displayName = displayName;
     }    public String getAvatarUrl() {
         return avatarUrl;
+    }    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public Boolean getE2eeEnabled() {
+        return e2eeEnabled;
+    }
+
+    public void setE2eeEnabled(Boolean e2eeEnabled) {
+        this.e2eeEnabled = e2eeEnabled;
     }
 
     public LocalDateTime getCreatedAt() {

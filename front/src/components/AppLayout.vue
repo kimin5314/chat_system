@@ -6,12 +6,15 @@ import router from "@/router/index.js"
 import request from '@/utils/request'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@/store/chat'
+import { useE2EEStore } from '@/store/e2ee'
 import Cookies from 'js-cookie'
 import { ElMessage } from 'element-plus'
 import { Menu } from '@element-plus/icons-vue'
+import { clearLocalStoragePreservingE2EE } from '@/utils/storage'
 
 const route = useRoute()
 const chatStore = useChatStore()
+const e2eeStore = useE2EEStore()
 
 // Mobile responsiveness
 const isMobile = ref(false)
@@ -31,11 +34,11 @@ const logout = () => {
   // Cleanup chat when logging out
   chatStore.cleanup()
   
-  // 清除认证信息
+  // Clear authentication and other data while preserving E2EE keys
   Cookies.remove('token')
   Cookies.remove('userId')
   sessionStorage.clear()
-  localStorage.clear()
+  clearLocalStoragePreservingE2EE()
   
   ElMessage.info('已安全退出')
   router.push('/login')
@@ -105,8 +108,7 @@ onMounted(async () => {
   // Initialize chat system if user is logged in
   const token = Cookies.get('token')
   const userId = Cookies.get('userId')
-  
-  if (token && userId) {
+    if (token && userId) {
     try {
       console.log('Initializing chat WebSocket connection for user:', userId)
       const connected = await chatStore.connectWebSocket()
@@ -114,6 +116,15 @@ onMounted(async () => {
         console.log('Chat WebSocket successfully connected')
       } else {
         console.warn('Chat WebSocket connection failed')
+      }
+
+      // Initialize E2EE system if user is logged in
+      console.log('🔑 Initializing E2EE system on app startup...')
+      try {
+        await e2eeStore.initialize()
+        console.log('✅ E2EE system initialized on app startup')
+      } catch (error) {
+        console.warn('⚠️ E2EE initialization failed (non-critical):', error)
       }
     } catch (error) {
       console.error('Failed to initialize chat system:', error)

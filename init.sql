@@ -21,10 +21,13 @@ CREATE TABLE IF NOT EXISTS `user` (
     `password` VARCHAR(255) NOT NULL,
     `display_name` VARCHAR(100),
     `avatar_url` TEXT,
+    `public_key` TEXT,
+    `e2ee_enabled` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     
     INDEX `idx_username` (`username`),
-    INDEX `idx_created_at` (`created_at`)
+    INDEX `idx_created_at` (`created_at`),
+    INDEX `idx_e2ee_enabled` (`e2ee_enabled`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===================================================
@@ -70,8 +73,10 @@ CREATE TABLE IF NOT EXISTS `message` (
     `sender_id` INT NOT NULL,
     `receiver_id` INT NOT NULL,
     `content` TEXT,
-    `message_type` ENUM('TEXT', 'IMAGE', 'FILE', 'SYSTEM') NOT NULL DEFAULT 'TEXT',
+    `message_type` ENUM('TEXT', 'IMAGE', 'FILE', 'SYSTEM', 'ENCRYPTED') NOT NULL DEFAULT 'TEXT',
     `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
+    `encrypted_aes_key` TEXT,
+    `iv` VARCHAR(255),
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     

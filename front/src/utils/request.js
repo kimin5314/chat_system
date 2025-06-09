@@ -15,6 +15,13 @@ request.interceptors.request.use(config => {
         if (config.responseType !== 'blob') {
             config.headers['Content-Type'] = 'application/json;charset=utf-8';
         }
+        
+        // Add token to authorization header if available
+        const token = Cookies.get('token');
+        if (token && !config.headers['Authorization']) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         return config;
     },
     error => {
@@ -47,9 +54,28 @@ request.interceptors.response.use(
         }
         
         return response;
-    },
-    error => {
+    },    error => {
         console.log('Request error:', error);
+        
+        // Handle 401 Unauthorized (token expired/invalid)
+        if (error.response && error.response.status === 401) {
+            ElMessage.error('登录已过期，请重新登录');
+            
+            // Clear all authentication data
+            Cookies.remove('token');
+            Cookies.remove('userId');
+            sessionStorage.clear();
+            localStorage.removeItem('chatToken');
+            
+            // Redirect to login page
+            const router = window.location;
+            if (router.hash && !router.hash.includes('#/login')) {
+                window.location.hash = '#/login';
+            }
+            
+            return Promise.reject(new Error('登录已过期'));
+        }
+        
         if (error.response && error.response.data) {
             ElMessage.error(error.response.data.msg || error.response.data.message || '请求失败');
         } else {

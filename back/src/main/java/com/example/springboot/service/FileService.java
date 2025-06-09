@@ -54,10 +54,6 @@ public class FileService {
 
     // 处理文件上传后写入数据库
     public fileStorage uploadFile(Integer userId, MultipartFile file, String fileName, FileType fileType, long fileSize) throws IOException {
-//        System.out.println(file);
-//        System.out.println(fileName);
-//        System.out.println(fileType);
-//        System.out.println(fileSize);
         // 如果没有传入文件名，使用原始文件名
         if (fileName == null || fileName.isEmpty()) {
             fileName = file.getOriginalFilename();
@@ -65,8 +61,7 @@ public class FileService {
 
         // 构建存储文件的路径
         Path path = Paths.get(uploadDir, fileName);
-////        System.out.println(path);
-//        // 创建文件并存储
+        // 创建文件并存储
         File destFile = path.toFile();
         file.transferTo(destFile);
 
@@ -129,12 +124,9 @@ public class FileService {
         if (mimeType == null) {
             // fallback
             mimeType = "application/octet-stream";
-        }
-
-        // 5. 设置下载时的文件名，处理中文或特殊字符
+        }        // 5. 设置下载时的文件名，处理中文或特殊字符
         String encodedFileName = UriUtils.encode(fileMeta.getFileName(), StandardCharsets.UTF_8);
         String contentDisposition = "attachment; filename=\"" + encodedFileName + "\"; filename*=utf-8''" + encodedFileName;
-//        System.out.println("encodedFileName=" +encodedFileName+" contentDisposition = " + contentDisposition);
         // 6. 构造响应
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
@@ -164,16 +156,13 @@ public class FileService {
             return "File not found";
         }
 
-        fileStorage file = fileOptional.get();
-        // 构建文件路径
+        fileStorage file = fileOptional.get();        // 构建文件路径
         String filePath = uploadDir + File.separator + file.getFileName();
         File fileToDelete = new File(filePath);
 
-//        System.out.println(fileToDelete);
         // 删除文件
         if (fileToDelete.exists()) {
             boolean isDeleted = fileToDelete.delete();
-//            System.out.println("isDeleted = " + isDeleted);
             if (!isDeleted) {
                 return "Failed to delete file from server";
             }
@@ -182,13 +171,12 @@ public class FileService {
             fileStorageRepository.delete(file);
             return "File not found on server";
         }
-//        System.out.println(file);
         // 删除数据库中的记录
         filePermissionRepository.deleteByFileId(fileId);
-        fileStorageRepository.delete(file);
+        fileStorageRepository.delete(file);        return "File deleted successfully";
+    }
 
-        return "File deleted successfully";
-    }    // 文件共享
+    // 文件共享
     public String shareFile(Integer userId, String targetUsername, Long fileId, PermissionType permission) {
         // 查找文件
         fileStorage file = fileStorageRepository.findById(fileId).orElse(null);
@@ -207,13 +195,10 @@ public class FileService {
                 fileId,
                 userId,
                 List.of(PermissionType.SHARE, PermissionType.READ)
-        );
-        // 1.3 如果两者都不满足，则直接返回 403 Forbidden（无权下载）
+        );        // 1.3 如果两者都不满足，则直接返回 403 Forbidden（无权下载）
         if (!hasReadOrSharePermission) {
             return "no permission to share this file";
         }
-//        System.out.println(file);
-//        System.out.println(targetUser);
         // 创建文件权限
         filePermission filePermission = new filePermission();
         filePermission.setUserId(targetUser.getId()); // 使用目标用户的ID

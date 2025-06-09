@@ -31,12 +31,20 @@
               v-model="displayName"
               :class="{ readonly: !isEditing }"
           />
-        </div>
-        <div class="info-item">
+        </div>        <div class="info-item">
           <label>注册时间：</label>
           <input :value="createdAt" readonly class="readonly" />
         </div>
       </div>
+    </div>
+    
+    <!-- E2EE Settings Section -->
+    <div class="e2ee-section">
+      <div class="section-header">
+        <h2>端到端加密设置</h2>
+        <p>管理您的聊天加密功能</p>
+      </div>
+      <E2EESettings />
     </div>
   </div>
 </template>
@@ -45,6 +53,7 @@
 import { ref , onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import request from '@/utils/request';
+import E2EESettings from '@/components/E2EESettings.vue';
 import Cookies from "js-cookie";
 
 const router = useRouter();
@@ -397,10 +406,35 @@ const uploadAvatar = async () => {
     flex-direction: column;
     align-items: flex-start;
   }
-  
-  .info-item label {
+    .info-item label {
     width: auto;
     margin-bottom: var(--spacing-xs);
   }
+}
+
+.e2ee-section {
+  margin-top: var(--spacing-3xl);
+  padding: var(--spacing-2xl);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+}
+
+.section-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.section-header h2 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-primary);
+  font-size: var(--font-xl);
+  font-weight: var(--font-semibold);
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
 }
 </style>

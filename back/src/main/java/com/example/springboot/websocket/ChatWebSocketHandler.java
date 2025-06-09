@@ -3,6 +3,7 @@ package com.example.springboot.websocket;
 import com.example.springboot.dto.MessageDto;
 import com.example.springboot.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -20,7 +21,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private static final Map<Integer, Set<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
     // Keep track of session to userId mapping for quick lookup
     private static final Map<WebSocketSession, Integer> sessionToUser = new ConcurrentHashMap<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -29,9 +32,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             // Add session to user's session set
             userSessions.computeIfAbsent(userId, k -> new CopyOnWriteArraySet<>()).add(session);
             sessionToUser.put(session, userId);
-            
-            System.out.println("Chat WebSocket connected for user: " + userId + " (Session: " + session.getId() + ")");
-            System.out.println("User " + userId + " now has " + userSessions.get(userId).size() + " active sessions");
             
             // Notify other users that this user is online (only if this is their first session)
             if (userSessions.get(userId).size() == 1) {
@@ -48,14 +48,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             if (sessions != null) {
                 sessions.remove(session);
                 
-                System.out.println("Chat WebSocket disconnected for user: " + userId + " (Session: " + session.getId() + ")");
-                System.out.println("User " + userId + " now has " + sessions.size() + " active sessions");
-                
                 // Only mark user as offline if they have no more active sessions
                 if (sessions.isEmpty()) {
                     userSessions.remove(userId);
                     broadcastUserStatus(userId, false);
-                    System.out.println("User " + userId + " is now completely offline");
                 }
             }
         }
@@ -73,8 +69,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
         
         // Handle other messages
-        System.out.println("Received WebSocket message: " + payload);
-        
         try {
             // Try to parse as JSON and process accordingly
             // Your existing message handling logic
