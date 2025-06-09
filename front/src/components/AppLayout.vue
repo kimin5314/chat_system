@@ -318,7 +318,9 @@ onUnmounted(() => {
 
 .app-main {
   background: var(--bg-light);
-  min-height: calc(100vh - 80px);
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  padding: 0;
 }
 
 /* Element Plus Overrides */
@@ -423,9 +425,9 @@ onUnmounted(() => {
     height: 60px !important;
     padding: 0 var(--spacing-sm) !important;
   }
-  
-  .app-main {
-    padding: var(--spacing-xs) !important;
+    .app-main {
+    height: calc(100vh - 60px);
+    padding: 0;
   }
   
   .sidebar-header {

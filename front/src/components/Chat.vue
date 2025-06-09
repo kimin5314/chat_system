@@ -498,14 +498,13 @@ defineExpose({
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 80px);
+  height: 100vh;
   background: var(--primary-gradient);
   position: relative;
-  border-radius: var(--border-radius);
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--shadow-heavy);
-  animation: slideUp 0.5s ease;
-  margin: var(--spacing-xl);
+  box-shadow: none;
+  margin: 0;
 }
 
 .mobile-header {
@@ -766,7 +765,7 @@ defineExpose({
   min-height: 0;
   height: 100%;
   position: relative;
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  border-radius: 0;
 }
 
 .chat-header {
@@ -1107,13 +1106,19 @@ defineExpose({
   .chat-sidebar {
     width: 280px;
   }
+  
+  .chat-container {
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
 }
 
 @media (max-width: 768px) {
   .chat-container {
-    border-radius: var(--border-radius-small);
-    margin: var(--spacing-md);
-    height: calc(100vh - 60px);
+    border-radius: 0;
+    margin: 0;
+    height: 100vh;
     flex-direction: column;
   }
   
@@ -1189,8 +1194,8 @@ defineExpose({
 
 @media (max-width: 480px) {
   .chat-container {
-    height: calc(100vh - 50px);
-    margin: var(--spacing-sm);
+    height: 100vh;
+    margin: 0;
   }
   
   .chat-sidebar {
