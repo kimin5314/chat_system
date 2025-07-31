@@ -612,6 +612,9 @@ html {
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+  height: calc(100vh - 140px); /* 为固定高度留出空间给header */
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -645,14 +648,19 @@ html {
 /* Table container with responsive wrapper */
 .table-container {
   margin-bottom: var(--spacing-xl);
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  overflow: auto;
   border-radius: var(--border-radius-small);
   box-shadow: var(--shadow-light);
   border: 1px solid var(--border-light);
   max-width: 100%;
+  flex: 1;
   /* 改进滚动条样式 */
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) var(--bg-secondary);
@@ -1116,6 +1124,34 @@ html {
   gap: var(--spacing-md);
 }
 
+.mobile-view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为mobile-view自定义滚动条 */
+.mobile-view::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mobile-view::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.mobile-view::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.mobile-view::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
 .file-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
@@ -1283,6 +1319,7 @@ html {
     /* 确保不会水平溢出 */
     max-width: calc(100vw - 2 * var(--spacing-sm));
     box-sizing: border-box;
+    height: calc(100vh - 100px); /* 调整移动端高度 */
   }
   
   .header {
@@ -1290,6 +1327,7 @@ html {
     align-items: stretch;
     margin-bottom: var(--spacing-lg);
     padding: var(--spacing-md);
+    flex-shrink: 0; /* 防止header被压缩 */
   }
   
   .search-input {
@@ -1302,6 +1340,7 @@ html {
     align-items: stretch;
     text-align: center;
     padding: var(--spacing-md);
+    flex-shrink: 0; /* 防止footer被压缩 */
   }
   
   .pagination {

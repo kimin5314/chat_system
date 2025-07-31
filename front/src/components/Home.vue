@@ -361,6 +361,10 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   animation: slideUp 0.5s ease;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .dashboard-header {
@@ -657,6 +661,8 @@ onMounted(() => {
 @media (max-width: 768px) {
   .dashboard-container {
     padding: var(--spacing-md);
+    height: 100%;
+    overflow-y: auto;
   }
   
   .dashboard-header {
@@ -694,6 +700,8 @@ onMounted(() => {
   .dashboard-container {
     padding: var(--spacing-sm);
     margin: var(--spacing-sm);
+    height: calc(100% - 2 * var(--spacing-sm));
+    overflow-y: auto;
   }
   
   .dashboard-header {

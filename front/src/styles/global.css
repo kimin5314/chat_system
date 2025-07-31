@@ -89,6 +89,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-family);
   font-size: var(--font-size-base);
@@ -97,6 +102,12 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.5;
+  overflow-y: auto;
+}
+
+#app {
+  height: 100%;
+  min-height: 100vh;
 }
 
 /* Unified Container Styles */
@@ -378,6 +389,36 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7));
+}
+
+/* 改进默认滚动条样式 - 适用于所有元素 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--bg-secondary);
 }
 
 /* Utility Classes */

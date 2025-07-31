@@ -401,6 +401,10 @@ function checkMobile() {
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-medium);
   animation: slideUp 0.5s ease;
+  height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .search-and-add {
@@ -411,6 +415,7 @@ function checkMobile() {
   gap: var(--spacing-md);
   background: var(--bg-secondary);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+  flex-shrink: 0;
 }
 
 .search-input {
@@ -431,9 +436,32 @@ function checkMobile() {
 }
 
 .friend-list {
-  max-height: 500px;
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--spacing-lg);
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为friend-list自定义滚动条 */
+.friend-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.friend-list::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.friend-list::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.friend-list::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
 }
 
 .friend-item {
@@ -583,7 +611,33 @@ function checkMobile() {
 }
 
 .search-results {
-  padding: 10px;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-light);
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为search-results自定义滚动条 */
+.search-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
 }
 
 .search-result-item {
@@ -608,27 +662,35 @@ function checkMobile() {
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .friend-list-container {
-    padding: 0 10px;
+    margin: var(--spacing-sm);
+    height: calc(100vh - 100px);
   }
   .search-and-add {
     flex-direction: column;
     align-items: stretch;
+    padding: var(--spacing-md);
   }
   .search-input {
     width: 100%;
   }
   .search-and-add > * {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-sm);
   }
-  .search-results,
+  .search-and-add > *:last-child {
+    margin-bottom: 0;
+  }
+  .search-results {
+    max-height: 150px;
+    padding: var(--spacing-md);
+  }
   .friend-list {
-    max-height: 300px;
+    padding: var(--spacing-md);
   }
   .friend-item {
     flex-direction: column;
     align-items: flex-start;
-    padding: 10px 5px;
+    padding: var(--spacing-md);
   }
   .friend-avatar {
     width: 40px;
@@ -640,7 +702,7 @@ function checkMobile() {
   }
   .friend-actions {
     width: 100%;
-    margin-top: 10px;
+    margin-top: var(--spacing-sm);
     text-align: right;
   }
 }

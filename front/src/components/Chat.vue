@@ -498,7 +498,7 @@ defineExpose({
 <style scoped>
 .chat-container {
   display: flex;
-  height: 100vh;
+  height: 100%;
   background: var(--primary-gradient);
   position: relative;
   border-radius: 0;
@@ -878,6 +878,7 @@ defineExpose({
 .messages-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;

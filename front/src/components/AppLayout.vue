@@ -319,18 +319,28 @@ onUnmounted(() => {
 .app-main {
   background: var(--bg-light);
   height: calc(100vh - 80px);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 0;
 }
 
 /* Element Plus Overrides */
 :deep(.el-aside) {
   box-shadow: var(--shadow-medium);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 :deep(.el-header) {
   box-shadow: var(--shadow-light);
   border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+:deep(.el-main) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
 }
 
 /* Menu Item Styles */
