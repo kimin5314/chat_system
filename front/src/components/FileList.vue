@@ -21,8 +21,8 @@
           </thead>
           <tbody>
             <tr v-for="file in pagedFiles" :key="file.id">
-              <td class="filename-cell" :title="file.fileName">
-                <span class="filename-text">{{ file.fileName }}</span>
+              <td class="filename-cell" :title="file.displayName">
+                <span class="filename-text">{{ file.displayName }}</span>
               </td>
               <td class="type-cell">{{ file.fileType }}</td>
               <td class="size-cell">{{ formatSize(file.fileSize) }}</td>
@@ -46,7 +46,7 @@
     <div class="mobile-view">
       <div v-for="file in pagedFiles" :key="file.id" class="file-card">
         <div class="file-card-header">
-          <h3 class="file-name">{{ file.fileName }}</h3>
+          <h3 class="file-name">{{ file.displayName }}</h3>
           <span class="file-type-badge">{{ file.fileType }}</span>
         </div>
         <div class="file-card-details">
@@ -158,6 +158,7 @@ import { useRouter } from 'vue-router';
 import UploadFile from './UploadFile.vue'
 import Cookies from 'js-cookie';
 import { ElNotification } from 'element-plus'
+import { smartDecodeFileName } from '@/utils/fileNameEncoder'
 
 // Add notification function for consistent styling
 const showNotification = (message, type = 'info') => {
@@ -332,6 +333,15 @@ async function fetchFiles() {
   }
 }
 
+// 解码文件名的计算属性
+const decodedFiles = computed(() => {
+  return files.value.map(file => ({
+    ...file,
+    displayName: smartDecodeFileName(file.fileName),  // 解码后的显示名称
+    originalFileName: file.fileName  // 保留原始编码名称用于API调用
+  }))
+})
+
 function onFileSelect(e) {
   selectedFile.value = e.target.files[0]
 }
@@ -388,14 +398,20 @@ const totalPages = computed(() =>
 )
 
 const filteredFiles = computed(() => {
-  let result = files.value.slice()
+  let result = decodedFiles.value.slice()  // 使用解码后的文件列表
   if (search.value) {
-    result = result.filter(f => f.fileName.includes(search.value))
+    result = result.filter(f => f.displayName.includes(search.value))  // 使用解码后的名称进行搜索
   }
   if (sortField.value) {
     result.sort((a, b) => {
       let valA = a[sortField.value]
       let valB = b[sortField.value]
+
+      // 如果是文件名字段，使用解码后的显示名称进行排序
+      if (sortField.value === 'fileName') {
+        valA = a.displayName
+        valB = b.displayName
+      }
 
       // 如果是时间字段，先转时间戳
       if (sortField.value === 'uploadedAt') {
@@ -420,14 +436,21 @@ async function download(fileId) {
       headers: { Authorization: `Bearer ${Cookies.get('token')}` }
     });
 
-    // 提取文件名 - 使用正确的header名称
+    // 从当前文件列表中找到对应文件的解码名称
+    const currentFile = decodedFiles.value.find(f => f.id === fileId)
+    let filename = currentFile ? currentFile.displayName : `file-${fileId}`
+
+    // 如果后端返回了文件名，也尝试解码（备用方案）
     const disposition = response.headers['content-disposition'];
     console.log('Content-Disposition:', disposition);
 
-    let filename = `file-${fileId}`;
     if (disposition) {
       const match = disposition.match(/filename[*]?=(?:UTF-8'')?["]?([^";]+)["]?/);
-      if (match) filename = decodeURIComponent(match[1]);
+      if (match) {
+        const serverFileName = decodeURIComponent(match[1])
+        // 尝试解码服务器返回的文件名
+        filename = smartDecodeFileName(serverFileName)
+      }
     }
 
     // 创建下载
@@ -545,6 +568,38 @@ function handleUploadError(error) {
 </script>
 
 <style scoped>
+/* 全局滚动优化 */
+* {
+  box-sizing: border-box;
+}
+
+/* 平滑滚动 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 改进所有滚动容器的滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary, #f8f9fa);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #667eea);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover, #5a6fd8);
+}
+
+/* 改进页面整体滚动 */
 .file-manager {
   padding: var(--spacing-2xl);
   background: var(--bg-primary);
@@ -553,6 +608,10 @@ function handleUploadError(error) {
   border: 1px solid var(--border-light);
   animation: slideUp 0.5s ease;
   margin: var(--spacing-xl);
+  /* 修复滚动问题 */
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .header {
@@ -594,6 +653,29 @@ function handleUploadError(error) {
   box-shadow: var(--shadow-light);
   border: 1px solid var(--border-light);
   max-width: 100%;
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为webkit浏览器自定义滚动条 */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+  transition: background 0.2s ease;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
 }
 
 .file-table {
@@ -896,6 +978,9 @@ function handleUploadError(error) {
   max-height: 90vh;
   position: relative;
   overflow: hidden;
+  /* 确保模态框内容可以滚动 */
+  display: flex;
+  flex-direction: column;
 }
 
 .close-btn {
@@ -925,6 +1010,31 @@ function handleUploadError(error) {
 .preview-content {
   padding: var(--spacing-xl);
   text-align: center;
+  /* 允许内容溢出时滚动 */
+  overflow-y: auto;
+  flex: 1;
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为preview-content自定义滚动条 */
+.preview-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.preview-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.preview-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
 }
 
 .preview-content img {
@@ -946,6 +1056,28 @@ function handleUploadError(error) {
   font-size: var(--font-sm);
   color: var(--text-primary);
   white-space: pre-wrap;
+  /* 改进滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--bg-secondary);
+}
+
+/* 为text-preview自定义滚动条 */
+.text-preview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.text-preview::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-small);
+}
+
+.text-preview::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.text-preview::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
 }
 
 @keyframes fadeIn {
@@ -1146,19 +1278,30 @@ function handleUploadError(error) {
   }
   
   .file-manager {
-    margin: var(--spacing-md);
-    padding: var(--spacing-lg);
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
+    /* 确保不会水平溢出 */
+    max-width: calc(100vw - 2 * var(--spacing-sm));
+    box-sizing: border-box;
   }
   
   .header {
     flex-direction: column;
     align-items: stretch;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+  }
+  
+  .search-input {
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .footer {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
+    padding: var(--spacing-md);
   }
   
   .pagination {
@@ -1169,6 +1312,8 @@ function handleUploadError(error) {
   /* Optimize mobile card layout for smaller screens */
   .file-card {
     padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    box-sizing: border-box;
   }
   
   .file-card-header {
@@ -1248,16 +1393,31 @@ function handleUploadError(error) {
 
 @media (max-width: 480px) {
   .file-manager {
-    margin: var(--spacing-sm);
-    padding: var(--spacing-md);
+    margin: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    /* 在极小屏幕上进一步减少margin */
+    max-width: calc(100vw - 2 * var(--spacing-xs));
+    box-sizing: border-box;
+  }
+  
+  .header {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .search-input {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-xs);
   }
   
   .file-card {
     padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
   }
   
   .file-name {
     font-size: var(--font-sm);
+    word-break: break-all; /* 确保长文件名可以换行 */
   }
   
   .detail-label,
@@ -1268,6 +1428,10 @@ function handleUploadError(error) {
   .action-btn {
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-xs);
+  }
+  
+  .footer {
+    padding: var(--spacing-sm);
   }
 }
 </style>

@@ -22,6 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import Cookies from 'js-cookie'
+import { encodeFileName } from '@/utils/fileNameEncoder'
 
 // Define emits
 const emit = defineEmits(['upload-start', 'upload-progress', 'upload-complete', 'upload-error'])
@@ -52,9 +53,11 @@ async function startUpload() {
   const token = getToken()
   if (!token) return alert('未登录或 token 丢失')
 
-  const fileId = `${file.name}-${file.size}-${file.lastModified}`
+  // 对文件名进行base64编码以处理中文字符
+  const encodedFileName = encodeFileName(file.name)
+  const fileId = `${encodedFileName}-${file.size}-${file.lastModified}`
 
-  // Emit upload start event
+  // Emit upload start event with original file name for display
   emit('upload-start', { fileName: file.name, fileSize: file.size })
 
   // 1. 查询已上传分片
@@ -95,7 +98,7 @@ async function startUpload() {
     form.append('fileId', fileId)
     form.append('chunkIndex', idx)
     form.append('totalChunks', totalChunks)
-    form.append('filename', file.name)
+    form.append('filename', encodedFileName)  // 使用编码后的文件名
 
     let attempts = 0
     while (attempts < 3) {
@@ -137,7 +140,7 @@ async function startUpload() {
     const mergeRes = await fetch(
       `${import.meta.env.VITE_API_BASE}/upload1/merge?fileId=${encodeURIComponent(
         fileId
-      )}&filename=${encodeURIComponent(file.name)}`,
+      )}&filename=${encodeURIComponent(encodedFileName)}`,  // 使用编码后的文件名
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -179,7 +182,7 @@ async function startUpload() {
 
       const metaForm = new FormData()
       metaForm.append('file', file)
-      metaForm.append('file_name', file.name)
+      metaForm.append('file_name', encodedFileName)  // 使用编码后的文件名存储
       metaForm.append('file_type', fileType)
       metaForm.append('file_size', file.size)
 
