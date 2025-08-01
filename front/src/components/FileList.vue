@@ -579,6 +579,11 @@ html {
 }
 
 /* 改进所有滚动容器的滚动条样式 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color, #667eea) var(--bg-secondary, #f8f9fa);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -599,6 +604,16 @@ html {
   background: var(--primary-hover, #5a6fd8);
 }
 
+/* 确保滚动容器可以被正确滚动 */
+.file-manager,
+.table-wrapper,
+.mobile-view,
+.preview-content,
+.text-preview {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color, #667eea) var(--bg-secondary, #f8f9fa);
+}
+
 /* 改进页面整体滚动 */
 .file-manager {
   padding: var(--spacing-2xl);
@@ -609,10 +624,11 @@ html {
   animation: slideUp 0.5s ease;
   margin: var(--spacing-xl);
   /* 修复滚动问题 */
-  max-width: 100%;
-  overflow-x: hidden;
+  max-width: calc(100% - 2 * var(--spacing-xl));
+  width: calc(100% - 2 * var(--spacing-xl));
+  overflow: hidden;
   box-sizing: border-box;
-  height: calc(100vh - 140px); /* 为固定高度留出空间给header */
+  min-height: 0; /* 允许flex子元素缩小 */
   display: flex;
   flex-direction: column;
 }
@@ -626,6 +642,7 @@ html {
   background: var(--bg-secondary);
   border-radius: var(--border-radius-small);
   border: 1px solid var(--border-light);
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 .search-input {
@@ -649,6 +666,7 @@ html {
 .table-container {
   margin-bottom: var(--spacing-xl);
   flex: 1;
+  min-height: 0; /* 关键：允许flex子元素缩小 */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -659,8 +677,8 @@ html {
   border-radius: var(--border-radius-small);
   box-shadow: var(--shadow-light);
   border: 1px solid var(--border-light);
-  max-width: 100%;
   flex: 1;
+  min-height: 0; /* 关键：允许表格容器缩小并滚动 */
   /* 改进滚动条样式 */
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) var(--bg-secondary);
@@ -668,6 +686,7 @@ html {
 
 /* 为webkit浏览器自定义滚动条 */
 .table-wrapper::-webkit-scrollbar {
+  width: 8px;
   height: 8px;
 }
 
@@ -863,6 +882,7 @@ html {
   background: var(--bg-secondary);
   border-radius: var(--border-radius-small);
   border: 1px solid var(--border-light);
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 .footer > span {
@@ -1126,6 +1146,7 @@ html {
 
 .mobile-view {
   flex: 1;
+  min-height: 0; /* 关键：允许移动视图缩小并滚动 */
   overflow-y: auto;
   overflow-x: hidden;
   /* 改进滚动条样式 */
@@ -1318,8 +1339,11 @@ html {
     padding: var(--spacing-md);
     /* 确保不会水平溢出 */
     max-width: calc(100vw - 2 * var(--spacing-sm));
+    width: calc(100vw - 2 * var(--spacing-sm));
     box-sizing: border-box;
-    height: calc(100vh - 100px); /* 调整移动端高度 */
+    /* 移动端使用视口高度，减去顶部导航栏 */
+    height: calc(100vh - 120px);
+    min-height: calc(100vh - 120px);
   }
   
   .header {
@@ -1436,7 +1460,10 @@ html {
     padding: var(--spacing-sm);
     /* 在极小屏幕上进一步减少margin */
     max-width: calc(100vw - 2 * var(--spacing-xs));
+    width: calc(100vw - 2 * var(--spacing-xs));
     box-sizing: border-box;
+    height: calc(100vh - 100px);
+    min-height: calc(100vh - 100px);
   }
   
   .header {
